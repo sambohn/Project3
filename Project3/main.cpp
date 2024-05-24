@@ -10,7 +10,7 @@ Vertex vertices[] =
     glm::vec3(-0.5f, 0.5f, 0.f),         glm::vec3(1.f, 0.f, 0.f),       glm::vec2(0.f, 1.f),
     glm::vec3(-0.5f, -0.5f, 0.f),        glm::vec3(0.f, 1.f, 0.f),       glm::vec2(0.f, 0.f),
     glm::vec3(0.5f, -0.5f, 0.f),         glm::vec3(0.f, 0.f, 1.f),       glm::vec2(1.f, 0.f),
-    glm::vec3(0.5f, 0.5f, 0.f),          glm::vec3(1.f, 1.f, 0.f),       glm::vec2(0.f, 0.f)
+    glm::vec3(0.5f, 0.5f, 0.f),          glm::vec3(1.f, 1.f, 0.f),       glm::vec2(1.f, 1.f)
     
 };
 unsigned nrOfVertices = sizeof(vertices) / sizeof(Vertex);
@@ -232,8 +232,36 @@ int main() {
     // BIND VAO 0
     glBindVertexArray(0); // Unbind any active Array
 
+    // TEXTURE INIT
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image = SOIL_load_image("Images/fish.png", &image_width, &image_height, NULL, SOIL_LOAD_RGBA);
+
+    // Get texture ID
+    GLuint texture0;
+    glGenTextures(1, &texture0);
+    glBindTexture(GL_TEXTURE_2D, texture0);
+    
+    if (image) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+        glGenerateMipmap(GL_TEXTURE_2D); // makes smaller & biger versions for distance
+
+        // Repeat texture to fill canvas
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
 
 
+    }
+    else {
+        std::cout << "ERROR::TEXTURE_LOADING_FAILED" << "\n";
+    }
+
+    // Texture cleanup
+    glActiveTexture(0); // No active texture
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind all textures
+    SOIL_free_image_data(image); // Free loaded texture from memory
 
 
 
@@ -266,6 +294,13 @@ int main() {
         // Use a program
         glUseProgram(core_program); // tell what shaders we want to use
 
+        // Update uniforms (textures)
+        glUniform1i(glGetUniformLocation(core_program, "texture0"), 0); // Bind shader program before sending data!!!
+
+        // Activate texture (binding)
+        glActiveTexture(GL_TEXTURE0); // tex in spot 0
+        glBindTexture(GL_TEXTURE_2D, texture0);
+
         // Bind vertex array object
         glBindVertexArray(VAO);
 
@@ -276,6 +311,12 @@ int main() {
         // End Draw
         glfwSwapBuffers(window); // Swap back & front buffer
         glFlush();
+
+        // unbinding
+        glBindVertexArray(0);
+        glUseProgram(0);
+        glActiveTexture(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     // END OF PROGRAM
