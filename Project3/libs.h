@@ -1,7 +1,9 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
+#include <vector>
 
 // OpenGL
 #include <glew.h>
@@ -18,5 +20,11 @@
 
 // Load images & textures
 #include <SOIL2.h>
+
+struct Vertex {
+	glm::vec3 position;
+	glm::vec3 color;
+	glm::vec2 texcoord;
+};
 
 
