@@ -1,6 +1,15 @@
 #pragma once
 #include "libs.h"
 
+// update input function
+void updateInput(GLFWwindow* window) {
+
+    // Close window on [ESC] pressed
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+}
+
 // Callback function for resizable window
 void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
     glViewport(0, 0, fbW, fbH);
@@ -153,6 +162,16 @@ int main() {
         return -1;
     }
 
+    // OpenGL Options
+    glEnable(GL_DEPTH_TEST); // enable use of Z & W coordinate
+    glEnable(GL_CULL_FACE); // don't draw whats not shown
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW); // draw vertices counter clockwise
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // fill shape with color [DEFAULT:FILL]
+    glEnable(GL_BLEND); // blend colors
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
     // Initialize Shader
     GLuint core_program;
     if (!loadShaders(core_program))
@@ -177,6 +196,7 @@ int main() {
         glfwPollEvents();
 
         // Game Update ---
+        updateInput(window);
 
         // DRAW ---
 
