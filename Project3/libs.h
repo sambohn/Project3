@@ -1,5 +1,9 @@
 #pragma once
 #include <iostream>
+#include <fstream>
+#include <string>
+
+// OpenGL
 #include <glew.h>
 #include <glfw3.h>
 
@@ -12,7 +16,7 @@
 #include <gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <gtc\type_ptr.hpp>
 
-// load images & textures
+// Load images & textures
 #include <SOIL2.h>
 
 
