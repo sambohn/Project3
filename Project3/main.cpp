@@ -155,7 +155,7 @@ int main() {
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // resisable
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // MAC OS
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Project3", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Fish.exe", NULL, NULL);
     if (!window) {
         std::cerr << "ERROR::MAIN.CPP::Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -232,6 +232,9 @@ int main() {
     // BIND VAO 0
     glBindVertexArray(0); // Unbind any active Array
 
+
+
+
     // TEXTURE INIT
     int image_width = 0;
     int image_height = 0;
@@ -265,6 +268,39 @@ int main() {
 
 
 
+    // TEXTURE1 INIT
+    int image_width1 = 0;
+    int image_height1 = 0;
+    unsigned char* image1 = SOIL_load_image("Images/yoyo.png", &image_width1, &image_height1, NULL, SOIL_LOAD_RGBA);
+
+    // Get texture ID
+    GLuint texture1;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    if (image) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width1, image_height1, 0, GL_RGBA, GL_UNSIGNED_BYTE, image1);
+        glGenerateMipmap(GL_TEXTURE_2D); // makes smaller & biger versions for distance
+
+        // Repeat texture to fill canvas
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
+
+
+    }
+    else {
+        std::cout << "ERROR::TEXTURE_LOADING_FAILED" << "\n";
+    }
+
+    // Texture cleanup
+    glActiveTexture(0); // No active texture
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind all textures
+    SOIL_free_image_data(image1); // Free loaded texture from memory
+
+
+
 
 
 
@@ -292,14 +328,17 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // Use a program
-        glUseProgram(core_program); // tell what shaders we want to use
+        glUseProgram(core_program); // tell what shaders to use
 
         // Update uniforms (textures)
         glUniform1i(glGetUniformLocation(core_program, "texture0"), 0); // Bind shader program before sending data!!!
+        glUniform1i(glGetUniformLocation(core_program, "texture1"), 1);
 
         // Activate texture (binding)
         glActiveTexture(GL_TEXTURE0); // tex in spot 0
         glBindTexture(GL_TEXTURE_2D, texture0);
+        glActiveTexture(GL_TEXTURE1); // tex in spot 0
+        glBindTexture(GL_TEXTURE_2D, texture1);
 
         // Bind vertex array object
         glBindVertexArray(VAO);
