@@ -21,6 +21,9 @@
 // Load images & textures
 #include <SOIL2.h>
 
+// classes
+#include "Shader.h"
+
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 color;
