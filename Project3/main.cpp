@@ -163,8 +163,9 @@ int main() {
     }
 
     // Set window context
+    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight); // same size as window
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback); // for resizable window
-    // glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight); // same size as window
+    
     // glViewport(0, 0, framebufferWidth, framebufferHeight); // how much window we are drawing on
 
     glfwMakeContextCurrent(window); // IMPORTANT
@@ -307,9 +308,33 @@ int main() {
     ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(0.f, 0.f, 1.f));
     ModelMatrix = glm::scale(ModelMatrix, glm::vec3(2.f)); // internally reverse. [scale>rot>trans]
 
-    // send to shader
+
+
+    // Create view matrix
+    // CAMERA [STATIC VECTOR & POS]
+    glm::vec3 camPosition(0.f, 0.f, 1.f);
+    glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f); // Up
+    glm::vec3 camFront = glm::vec3(0.f, 0.f, -1.f); // Forward
+    glm::mat4 ViewMatrix(1.f);
+    ViewMatrix = glm::lookAt(camPosition, camPosition + camFront, worldUp);
+
+    // Create projection matrix
+    float fov = 90.f;
+    float nearPlane = 0.1f; // Not 0. Want slightly behind cam to avoid clipping
+    float farPlane = 1000.f;
+    glm::mat4 ProjectionMatrix(1.f); // INITIALIZE!!!
+
+    ProjectionMatrix = glm::perspective(
+        glm::radians(fov), 
+        static_cast<float>(framebufferWidth) / framebufferHeight,
+        nearPlane,
+        farPlane); // Not resized until game loop. Send to shader
+
+    // send to shader [ Init uniforms ]
     glUseProgram(core_program);
     glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(core_program, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
     glUseProgram(0);
 
 
@@ -345,12 +370,25 @@ int main() {
 
         // Move, rotate and scale
         ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.f)); // calculations done right to left
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(1.f), glm::vec3(1.f, 0.f, 0.f));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(1.f), glm::vec3(0.f, 1.f, 0.f));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(1.f), glm::vec3(0.f, 0.f, 1.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.1f), glm::vec3(0.f, 1.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(0.f, 0.f, 1.f));
         ModelMatrix = glm::scale(ModelMatrix, glm::vec3(1.f)); // internally reverse. [scale>rot>trans]
 
+
+
         glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+        // get correct view plane every frame
+        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+        ProjectionMatrix = glm::mat4(1.f);
+        ProjectionMatrix = glm::perspective(
+            glm::radians(fov),
+            static_cast<float>(framebufferWidth) / framebufferHeight,
+            nearPlane,
+            farPlane);
+        glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+
 
         // Activate texture (binding)
         glActiveTexture(GL_TEXTURE0); // tex in spot 0
