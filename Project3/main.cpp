@@ -31,6 +31,40 @@ void updateInput(GLFWwindow* window) {
     }
 }
 
+void updateInput(GLFWwindow* window, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale) {
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        position.z -= 0.001f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        position.x -= 0.001f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        position.z += 0.001f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        position.x += 0.001f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        rotation.y -= 0.05f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        rotation.y += 0.05f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+        scale.x -= 0.01f;
+        scale.y -= 0.01f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        scale.x += 0.01f;
+        scale.y += 0.01f;
+    }
+
+}
+
 // Callback function for resizable window
 void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
     glViewport(0, 0, fbW, fbH);
@@ -304,13 +338,18 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, 0); // Unbind all textures
     SOIL_free_image_data(image1); // Free loaded texture from memory
 
+    // Init Matrices
+    glm::vec3 position(0.f);
+    glm::vec3 rotation(0.f);
+    glm::vec3 scale(1.f);
+
     // MODEL MATRIX
     glm::mat4 ModelMatrix(1.f); // Make identity matrix
-    ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.f)); // calculations done right to left
-    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
-    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
-    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(0.f, 0.f, 1.f));
-    ModelMatrix = glm::scale(ModelMatrix, glm::vec3(2.f)); // internally reverse. [scale>rot>trans]
+    ModelMatrix = glm::translate(ModelMatrix, position); // calculations done right to left
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+    ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+    ModelMatrix = glm::scale(ModelMatrix, scale); // internally reverse. [scale>rot>trans]
 
 
 
@@ -362,6 +401,7 @@ int main() {
         
         // UPDATE INPUT ---
         glfwPollEvents();
+        updateInput(window, position, rotation, scale);
 
         // Game Update ---
         updateInput(window);
@@ -380,11 +420,16 @@ int main() {
         glUniform1i(glGetUniformLocation(core_program, "texture1"), 1);
 
         // Move, rotate and scale
-        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.f)); // calculations done right to left
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.05f), glm::vec3(0.f, 1.f, 0.f));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(0.f), glm::vec3(0.f, 0.f, 1.f));
-        ModelMatrix = glm::scale(ModelMatrix, glm::vec3(1.f)); // internally reverse. [scale>rot>trans]
+        // position.z -= 0.001f;
+        // rotation.y += 0.05f;
+        
+
+        ModelMatrix = glm::mat4(1.f);
+        ModelMatrix = glm::translate(ModelMatrix, position); // calculations done right to left
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+        ModelMatrix = glm::scale(ModelMatrix, scale); // internally reverse. [scale>rot>trans]
 
 
 
