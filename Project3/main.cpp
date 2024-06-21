@@ -8,10 +8,10 @@ Vertex vertices[] =
     // Position                         // Color                        // Texcoords                // Normals                  
 
     glm::vec3(-0.5f, 0.5f, 0.f),         glm::vec3(1.f, 0.f, 0.f),       glm::vec2(0.f, 1.f),        glm::vec3(0.f, 0.f, -1.f),
-    glm::vec3(-0.5f, -0.5f, 0.f),        glm::vec3(0.f, 1.f, 0.f),       glm::vec2(0.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
-    glm::vec3(0.5f, -0.5f, 0.f),         glm::vec3(0.f, 0.f, 1.f),       glm::vec2(1.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
+    glm::vec3(-0.5f, -0.5f, 0.f),        glm::vec3(0.f, 1.f, 0.5f),       glm::vec2(0.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
+    glm::vec3(0.5f, -0.5f, 0.f),         glm::vec3(0.f, 0.f, 0.5f),       glm::vec2(1.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
     glm::vec3(0.5f, 0.5f, 0.f),          glm::vec3(1.f, 1.f, 0.f),       glm::vec2(1.f, 1.f),        glm::vec3(0.f, 0.f, -1.f)
-    
+
 };
 unsigned nrOfVertices = sizeof(vertices) / sizeof(Vertex);
 
@@ -70,7 +70,7 @@ void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
     glViewport(0, 0, fbW, fbH);
 }
 
-bool loadShaders(GLuint &program) {
+bool loadShaders(GLuint& program) {
     bool loadSuccess = true;
     char infoLog[512];
     GLint success;
@@ -199,7 +199,7 @@ int main() {
     // Set window context
     glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight); // same size as window
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback); // for resizable window
-    
+
     // glViewport(0, 0, framebufferWidth, framebufferHeight); // how much window we are drawing on
 
     glfwMakeContextCurrent(window); // IMPORTANT
@@ -251,7 +251,7 @@ int main() {
 
     // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
     //GLuint attribloc = glGetAttribLocation(core_program);
-    
+
     // Position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
@@ -283,7 +283,7 @@ int main() {
     GLuint texture0;
     glGenTextures(1, &texture0);
     glBindTexture(GL_TEXTURE_2D, texture0);
-    
+
     if (image) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
         glGenerateMipmap(GL_TEXTURE_2D); // makes smaller & biger versions for distance
@@ -368,7 +368,7 @@ int main() {
     glm::mat4 ProjectionMatrix(1.f); // INITIALIZE!!!
 
     ProjectionMatrix = glm::perspective(
-        glm::radians(fov), 
+        glm::radians(fov),
         static_cast<float>(framebufferWidth) / framebufferHeight,
         nearPlane,
         farPlane); // Not resized until game loop. Send to shader
@@ -402,7 +402,7 @@ int main() {
 
     // MAIN PROGRAM LOOP
     while (!glfwWindowShouldClose(window)) { // As long as window is open
-        
+
         // UPDATE INPUT ---
         glfwPollEvents();
         updateInput(window, position, rotation, scale);
@@ -426,7 +426,7 @@ int main() {
         // Move, rotate and scale
         // position.z -= 0.001f;
         // rotation.y += 0.05f;
-        
+
 
         ModelMatrix = glm::mat4(1.f);
         ModelMatrix = glm::translate(ModelMatrix, position); // calculations done right to left

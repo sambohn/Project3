@@ -24,6 +24,8 @@
 // classes
 #include "Shader.h"
 
+#include <windows.h>
+
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 color;

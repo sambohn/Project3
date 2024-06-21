@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="Fish" Language="1033" Version="1.0.0.0" Manufacturer="SamuelBohn" UpgradeCode="PUT-GUID-HERE">
+
+        <Package InstallerVersion="200" Compressed="yes" />
+
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="MyProduct">
+                    <Component Id="MainExecutable" Guid="*">
+                        <File Id="MyExecutable" Source="path\to\your\executable\file.exe" KeyPath="yes" />
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory>
+
+        <Feature Id="MainFeature" Title="Main Feature" Level="1">
+            <ComponentRef Id="MainExecutable" />
+        </Feature>
+
+    </Product>
+</Wix>
