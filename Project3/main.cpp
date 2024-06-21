@@ -225,9 +225,13 @@ int main() {
 
 
     // Initialize Shader
-    GLuint core_program;
-    if (!loadShaders(core_program))
-        glfwTerminate();
+
+    Shader core_program("vertex_core.glsl", "fragment_core.glsl");
+
+
+    //GLuint core_program;
+    //if (!loadShaders(core_program))
+    //    glfwTerminate();
 
     // MODEL
 
@@ -377,16 +381,16 @@ int main() {
     glm::vec3 lightPos0(0.f, 0.f, 1.f);
 
     // Init Uniforms
+    core_program.use();
+
     // send to shader [ Init uniforms ]
-    glUseProgram(core_program);
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+    core_program.setMat4fv(ModelMatrix, "ModelMatrix");
+    core_program.setMat4fv(ViewMatrix, "ViewMatrix");
+    core_program.setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
     // Send light pos -> fragment shader
-    glUniform3fv(glGetUniformLocation(core_program, "lightPos"), 1, glm::value_ptr(lightPos0)); // Light pos
-    glUniform3fv(glGetUniformLocation(core_program, "cameraPos"), 1, glm::value_ptr(camPosition)); // Camera pos
-    glUseProgram(0);
+    core_program.setVec3f(lightPos0, "lightPos0");
+    core_program.setVec3f(camPosition, "cameraPos");
 
 
 
@@ -416,17 +420,13 @@ int main() {
         glClearColor(0.f, 0.f, 0.f, 1.f); // Black
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        // Use a program
-        glUseProgram(core_program); // tell what shaders to use
-
         // Update uniforms (textures)
-        glUniform1i(glGetUniformLocation(core_program, "texture0"), 0); // Bind shader program before sending data!!!
-        glUniform1i(glGetUniformLocation(core_program, "texture1"), 1);
+        core_program.set1i(0, "texture0"); // Bind shader program before sending data!!!
+        core_program.set1i(1, "texture1");
 
         // Move, rotate and scale
         // position.z -= 0.001f;
         // rotation.y += 0.05f;
-
 
         ModelMatrix = glm::mat4(1.f);
         ModelMatrix = glm::translate(ModelMatrix, position); // calculations done right to left
@@ -435,9 +435,7 @@ int main() {
         ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
         ModelMatrix = glm::scale(ModelMatrix, scale); // internally reverse. [scale>rot>trans]
 
-
-
-        glUniformMatrix4fv(glGetUniformLocation(core_program, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+        core_program.setMat4fv(ModelMatrix, "ModelMatrix");
 
         // get correct view plane every frame
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
@@ -447,8 +445,10 @@ int main() {
             static_cast<float>(framebufferWidth) / framebufferHeight,
             nearPlane,
             farPlane);
-        glUniformMatrix4fv(glGetUniformLocation(core_program, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
+        core_program.setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
+        // Use a program
+        core_program.use(); // tell what shaders to use
 
         // Activate texture (binding)
         glActiveTexture(GL_TEXTURE0); // tex in spot 0
@@ -479,6 +479,5 @@ int main() {
     glfwTerminate();
 
     // Delete program
-    glDeleteProgram(core_program);
     return 0;
 }
