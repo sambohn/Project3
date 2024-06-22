@@ -275,72 +275,11 @@ int main() {
     // BIND VAO 0
     glBindVertexArray(0); // Unbind any active Array
 
-
-
-
-    // TEXTURE INIT
-    int image_width = 0;
-    int image_height = 0;
-    unsigned char* image = SOIL_load_image("Images/fish.png", &image_width, &image_height, NULL, SOIL_LOAD_RGBA);
-
-    // Get texture ID
-    GLuint texture0;
-    glGenTextures(1, &texture0);
-    glBindTexture(GL_TEXTURE_2D, texture0);
-
-    if (image) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-        glGenerateMipmap(GL_TEXTURE_2D); // makes smaller & biger versions for distance
-
-        // Repeat texture to fill canvas
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
-
-
-    }
-    else {
-        std::cout << "ERROR::TEXTURE_LOADING_FAILED" << "\n";
-    }
-
-    // Texture cleanup
-    glActiveTexture(0); // No active texture
-    glBindTexture(GL_TEXTURE_2D, 0); // Unbind all textures
-    SOIL_free_image_data(image); // Free loaded texture from memory
-
-
+    // TEXTURE0 INIT
+    Texture texture0("Images/fish.png", GL_TEXTURE_2D, 0);
 
     // TEXTURE1 INIT
-    int image_width1 = 0;
-    int image_height1 = 0;
-    unsigned char* image1 = SOIL_load_image("Images/yoyo.png", &image_width1, &image_height1, NULL, SOIL_LOAD_RGBA);
-
-    // Get texture ID
-    GLuint texture1;
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-
-    if (image) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width1, image_height1, 0, GL_RGBA, GL_UNSIGNED_BYTE, image1);
-        glGenerateMipmap(GL_TEXTURE_2D); // makes smaller & biger versions for distance
-
-        // Repeat texture to fill canvas
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
-
-
-    }
-    else {
-        std::cout << "ERROR::TEXTURE_LOADING_FAILED" << "\n";
-    }
-
-    // Texture cleanup
-    glActiveTexture(0); // No active texture
-    glBindTexture(GL_TEXTURE_2D, 0); // Unbind all textures
-    SOIL_free_image_data(image1); // Free loaded texture from memory
+    Texture texture1("Images/yoyo.png", GL_TEXTURE_2D, 1);
 
     // Init Matrices
     glm::vec3 position(0.f);
@@ -354,8 +293,6 @@ int main() {
     ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
     ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
     ModelMatrix = glm::scale(ModelMatrix, scale); // internally reverse. [scale>rot>trans]
-
-
 
     // Create view matrix
     // CAMERA [STATIC VECTOR & POS]
@@ -396,14 +333,6 @@ int main() {
 
 
 
-
-
-
-
-
-
-
-
     // MAIN PROGRAM LOOP
     while (!glfwWindowShouldClose(window)) { // As long as window is open
 
@@ -421,8 +350,8 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // Update uniforms (textures)
-        core_program.set1i(0, "texture0"); // Bind shader program before sending data!!!
-        core_program.set1i(1, "texture1");
+        core_program.set1i(texture0.getTextureUnit(), "texture0"); // Bind shader program before sending data!!!
+        core_program.set1i(texture1.getTextureUnit(), "texture1");
 
         // Move, rotate and scale
         // position.z -= 0.001f;
@@ -451,10 +380,8 @@ int main() {
         core_program.use(); // tell what shaders to use
 
         // Activate texture (binding)
-        glActiveTexture(GL_TEXTURE0); // tex in spot 0
-        glBindTexture(GL_TEXTURE_2D, texture0);
-        glActiveTexture(GL_TEXTURE1); // tex in spot 0
-        glBindTexture(GL_TEXTURE_2D, texture1);
+        texture0.bind();
+        texture1.bind();
 
         // Bind vertex array object
         glBindVertexArray(VAO);
