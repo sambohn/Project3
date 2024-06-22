@@ -281,6 +281,9 @@ int main() {
     // TEXTURE1 INIT
     Texture texture1("Images/yoyo.png", GL_TEXTURE_2D, 1);
 
+    // MATERIAL 0
+    Material material0(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f), texture0.getTextureUnit(), texture1.getTextureUnit());
+
     // Init Matrices
     glm::vec3 position(0.f);
     glm::vec3 rotation(0.f);
@@ -352,6 +355,7 @@ int main() {
         // Update uniforms (textures)
         core_program.set1i(texture0.getTextureUnit(), "texture0"); // Bind shader program before sending data!!!
         core_program.set1i(texture1.getTextureUnit(), "texture1");
+        material0.sendToShader(core_program); // update texture in shader [Fragment]
 
         // Move, rotate and scale
         // position.z -= 0.001f;

@@ -24,6 +24,7 @@
 // classes
 #include "Shader.h"
 #include "Texture.h"
+#include "Material.h"
 
 #include <windows.h>
 
