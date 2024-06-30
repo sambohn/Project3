@@ -235,6 +235,8 @@ int main() {
 
     // MODEL
 
+    // MODEL MESH
+    Mesh test(vertices, nrOfVertices, indices, nrOfIndices);
 
     // VAO, VBO, EBO
     // GEN VAO, & BIND
@@ -319,7 +321,7 @@ int main() {
         farPlane); // Not resized until game loop. Send to shader
 
     // Lights
-    glm::vec3 lightPos0(0.f, 0.f, 1.f);
+    glm::vec3 lightPos0(0.f, 0.f, -1.f);
 
     // Init Uniforms
     core_program.use();
@@ -394,6 +396,8 @@ int main() {
         // Draw
         //glDrawArrays(GL_TRIANGLES, 0, nrOfVertices); // Draw all points. Not optimanl.
         glDrawElements(GL_TRIANGLES, nrOfIndices, GL_UNSIGNED_INT, 0);
+
+        test.render(&core_program);
 
         // End Draw
         glfwSwapBuffers(window); // Swap back & front buffer
