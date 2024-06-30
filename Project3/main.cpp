@@ -235,6 +235,7 @@ int main() {
 
     // MODEL
 
+
     // VAO, VBO, EBO
     // GEN VAO, & BIND
     GLuint VAO; // vertex Array Object

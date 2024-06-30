@@ -58,6 +58,7 @@ void main() {
 
 	// Attenuation
 
+	// vec4(vs_color, 1.f)
 
 	fs_color =
 	 texture(material.specularTex, vs_texcoord) * vec4(vs_color, 1.f)
