@@ -75,12 +75,12 @@ private:
         glBindVertexArray(0); // Unbind any active Array
     }
 
-    void initModelMatrix() {
-        this->position = glm::vec3(0.f);
-        this->rotation = glm::vec3(0.f);
-        this->scale = glm::vec3(1.f);
 
-        // MODEL MATRIX
+    void updateUniforms(Shader* shader) {
+        shader->setMat4fv(this->ModelMatrix, "ModelMatrix");
+    }
+
+    void updateModelMatrix() {
         this->ModelMatrix = glm::mat4(1.f); // Make identity matrix
         this->ModelMatrix = glm::translate(this->ModelMatrix, this->position); // calculations done right to left
         this->ModelMatrix = glm::rotate(this->ModelMatrix, glm::radians(this->rotation.x), glm::vec3(1.f, 0.f, 0.f));
@@ -89,18 +89,21 @@ private:
         this->ModelMatrix = glm::scale(this->ModelMatrix, this->scale); // internally reverse. [scale>rot>trans]
     }
 
-    void updateUniforms(Shader* shader) {
-        shader->setMat4fv(this->ModelMatrix, "ModelMatrix");
-    }
-
 public:
     Mesh(Vertex* vertexArray,
         const unsigned& numVerticies,
         GLuint* indexArray,
-        const unsigned& numIndicies) {
+        const unsigned& numIndicies,
+        glm::vec3 position = glm::vec3(0.f),
+        glm::vec3 rotation = glm::vec3(0.f),
+        glm::vec3 scale = glm::vec3(1.f)) {
+
+        this->position = position;
+        this->rotation = rotation;
+        this->scale = scale;
 
         this->initVAO(vertexArray, numVerticies, indexArray, numIndicies);
-        this->initModelMatrix();
+        this->updateModelMatrix();
     }
 
     ~Mesh() {
@@ -109,11 +112,39 @@ public:
         glDeleteBuffers(1, &this->EBO);
     }
 
+    // Modifiers
+    void setPosition(const glm::vec3& position) {
+        this->position = position;
+    }
+
+    void setRotation(const glm::vec3& rotation) {
+        this->rotation = rotation;
+    }
+
+    void setScale(const glm::vec3& scale) {
+        this->scale = scale;
+    }
+
+    void move(const glm::vec3 position) {
+        this->position += position;
+    }
+
+    void rotate(const glm::vec3 rotation) {
+        this->rotation += rotation;
+    }
+
+    void scaleUp(const glm::vec3 scale) {
+        this->scale += scale;
+    }
+
+
+    // Functions
     void update() {
         // Update logic
     }
 
     void render(Shader* shader) {
+        this->updateModelMatrix();
         // Update uniforms
         this->updateUniforms(shader);
 
