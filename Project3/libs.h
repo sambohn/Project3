@@ -22,10 +22,11 @@
 #include <SOIL2.h>
 
 // classes
+#include "Vertex.h"
+#include "Primitives.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Material.h"
-#include "Vertex.h"
 #include "Mesh.h"
 
 #include <windows.h>

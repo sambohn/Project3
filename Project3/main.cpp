@@ -2,26 +2,6 @@
 #include "libs.h"
 
 
-
-Vertex vertices[] =
-{
-    // Position                         // Color                        // Texcoords                // Normals                  
-
-    glm::vec3(-0.5f, 0.5f, 0.f),         glm::vec3(1.f, 0.f, 0.f),       glm::vec2(0.f, 1.f),        glm::vec3(0.f, 0.f, -1.f),
-    glm::vec3(-0.5f, -0.5f, 0.f),        glm::vec3(0.f, 1.f, 0.5f),       glm::vec2(0.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
-    glm::vec3(0.5f, -0.5f, 0.f),         glm::vec3(0.f, 0.f, 0.5f),       glm::vec2(1.f, 0.f),        glm::vec3(0.f, 0.f, -1.f),
-    glm::vec3(0.5f, 0.5f, 0.f),          glm::vec3(1.f, 1.f, 0.f),       glm::vec2(1.f, 1.f),        glm::vec3(0.f, 0.f, -1.f)
-
-};
-unsigned nrOfVertices = sizeof(vertices) / sizeof(Vertex);
-
-GLuint indices[] =
-{
-    0, 1, 2, // Triangle 1
-    0, 2, 3  // Triangle 2
-};
-unsigned nrOfIndices = sizeof(indices) / sizeof(GLuint);
-
 // update input function
 void updateInput(GLFWwindow* window) {
 
@@ -64,6 +44,9 @@ void updateInput(GLFWwindow* window, Mesh &mesh) {
         mesh.setPosition(glm::vec3(0.f));
         mesh.setRotation(glm::vec3(0.f));
         mesh.setScale(glm::vec3(1.f));
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
     }
 }
 
@@ -238,7 +221,7 @@ int main() {
     // MODEL
 
     // MODEL MESH
-    Mesh test(vertices, nrOfVertices, indices, nrOfIndices);
+    Mesh test(&Triangle());
 
 
     // TEXTURE0 INIT
