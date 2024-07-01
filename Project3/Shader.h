@@ -19,6 +19,8 @@
 class Shader {
 private:
     GLuint id;
+    const int versionMajor;
+    const int versionMinor;
 
     std::string loadShaderSource(const char* fileName) {
         std::string temp = "";
@@ -33,6 +35,10 @@ private:
             std::cout << "ERROR::SHADER::COULD_NOT_OPEN_FILE " << fileName << "\n";
         }
         in_file.close();
+
+        std::string versionNr = std::to_string(versionMajor) + std::to_string(versionMinor) + "0";
+            std::cout << src.replace(src.find("#version"), 12, "#version"+versionNr) << "\n";
+
         return src;
     }
 
@@ -79,7 +85,9 @@ private:
     }
 
 public:
-    Shader(const char* vertexFile, const char* fragmentFile, const char* geometryFile = nullptr) {
+    Shader(const int versionMajor, const int versionMinor,
+        const char* vertexFile, const char* fragmentFile, const char* geometryFile = nullptr)
+        : versionMajor(versionMajor), versionMinor(versionMinor) {
         GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexFile);
         GLuint geometryShader = 0;
         if (geometryFile)

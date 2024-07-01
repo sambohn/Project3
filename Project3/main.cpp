@@ -153,6 +153,32 @@ bool loadShaders(GLuint& program) {
     return loadSuccess;
 }
 
+GLFWwindow* createWindow(
+    const char* title,
+    const int width, const int height,
+    int& fbWidth, int& fbHeight,
+    int GLmajorVer, int GLminorVer,
+    bool resizable) {
+
+    // Window Options [using GLSL version 4.4]
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLmajorVer);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLminorVer);
+    glfwWindowHint(GLFW_RESIZABLE, resizable); // resisable
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // MAC OS
+
+    GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+
+    // Set window context
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight); // same size as window
+    glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback); // for resizable window
+
+    // glViewport(0, 0, framebufferWidth, framebufferHeight); // how much window we are drawing on
+
+    glfwMakeContextCurrent(window); // IMPORTANT
+    return window;
+}
+
 int main() {
 
     // Init GLFW
@@ -162,32 +188,18 @@ int main() {
     }
 
     // Create Window
+    const int GLmajorVersion = 4;
+    const int GLminorVersion = 5;
     const int WINDOW_WIDTH = 640;
     const int WINDOW_HEIGHT = 480;
-    int framebufferWidth = 0;
-    int framebufferHeight = 0;
+    int framebufferWidth = WINDOW_WIDTH;
+    int framebufferHeight = WINDOW_HEIGHT;
 
-    // Window Options [using GLSL version 4.4]
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // resisable
-    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // MAC OS
-
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Fish.exe", NULL, NULL);
-    if (!window) {
-        std::cerr << "ERROR::MAIN.CPP::Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // Set window context
-    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight); // same size as window
-    glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback); // for resizable window
-
-    // glViewport(0, 0, framebufferWidth, framebufferHeight); // how much window we are drawing on
-
-    glfwMakeContextCurrent(window); // IMPORTANT
+    GLFWwindow* window = createWindow("Fish.exe",
+        WINDOW_WIDTH, WINDOW_HEIGHT,
+        framebufferWidth, framebufferHeight,
+        GLmajorVersion, GLminorVersion,
+        false);
 
     // Initialize GLEW (NEEDS WINDOW CONTEXT)
     glewExperimental = GL_TRUE; // enable modern OpenGL functionality
@@ -211,7 +223,8 @@ int main() {
 
     // Initialize Shader
 
-    Shader core_program("vertex_core.glsl", "fragment_core.glsl");
+    Shader core_program(GLmajorVersion, GLminorVersion,
+        "vertex_core.glsl", "fragment_core.glsl");
 
 
     //GLuint core_program;
