@@ -1,4 +1,8 @@
+#ifndef SHADER_H
+#define SHADER_H
+
 #pragma once
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -37,8 +41,7 @@ private:
         in_file.close();
 
         std::string versionNr = std::to_string(versionMajor) + std::to_string(versionMinor) + "0";
-            std::cout << src.replace(src.find("#version"), 12, "#version"+versionNr) << "\n";
-
+        src.replace(src.find("#version"), 12, "#version " + versionNr); // Corrected space in "#version "
         return src;
     }
 
@@ -110,96 +113,38 @@ public:
     void use() {
         glUseProgram(this->id);
     }
-    
+
     void unuse() {
         glUseProgram(0);
     }
 
-
     void set1i(GLint value, const GLchar* name) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniform1i(glGetUniformLocation(this->id, name), value);
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void set1f(GLfloat value, const GLchar* name) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniform1f(glGetUniformLocation(this->id, name), value);
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void setVec2f(glm::fvec2 value, const GLchar* name) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniform2fv(glGetUniformLocation(this->id, name), 1, glm::value_ptr(value));
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void setVec3f(glm::fvec3 value, const GLchar* name) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniform3fv(glGetUniformLocation(this->id, name), 1, glm::value_ptr(value));
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void setVec4f(glm::fvec4 value, const GLchar* name) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniform4fv(glGetUniformLocation(this->id, name), 1, glm::value_ptr(value));
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void setMat3fv(glm::mat3 value, const GLchar* name, GLboolean transpose = GL_FALSE) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniformMatrix3fv(glGetUniformLocation(this->id, name), 1, transpose, glm::value_ptr(value));
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
 
     void setMat4fv(glm::mat4 value, const GLchar* name, GLboolean transpose = GL_FALSE) {
-
-        // Use program
-        this->use();
-
-        // Set shader
         glUniformMatrix4fv(glGetUniformLocation(this->id, name), 1, transpose, glm::value_ptr(value));
-
-        // Unuse
-        this->unuse(); // need to use again to start drawing
     }
-
-
-
 };
+
+#endif // SHADER_H

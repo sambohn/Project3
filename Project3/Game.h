@@ -2,6 +2,11 @@
 #include "libs.h"
 
 
+// Enumerations
+enum shader_enum{SHADER_CORE_PROGRAM = 0};
+enum texture_enum{TEX_FISH0, TEX_FISH1};
+enum material_enum{MAT_1 = 0};
+enum mesh_enum{MESH_QUAD = 0};
 
 
 class Game
@@ -19,11 +24,47 @@ private:
 	const int GL_VERSION_MAJOR;
 	const int GL_VERSION_MINOR;
 
+	// Matrices
+	glm::mat4 ViewMatrix;
+	glm::mat4 ProjectionMatrix;
+	glm::vec3 camPosition;
+	glm::vec3 worldUp;
+	glm::vec3 camFront;
+
+	float fov;
+	float nearPlane; // Not 0. Want slightly behind cam to avoid clipping
+	float farPlane;
+
+	// Shaders
+	std::vector<Shader*> shaders;
+
+	// Textures
+	std::vector<Texture*> textures;
+
+	// Materials
+	std::vector<Material*> materials;
+
+	// Meshes
+	std::vector<Mesh*> meshes;
+
+	// Lights
+	std::vector<glm::vec3*> lights;
+
+
 // Private functions
 	void initGLFW();
 	void initWindow(const char* title, bool resizable);
 	void initGLEW(); // After context creation
 	void initOpenGLOptions();
+	void initMatrices();
+	void initShaders();
+	void initTextures();
+	void initMaterials();
+	void initMeshes();
+	void initLights();
+	void initUniforms();
+
+	void updateUniforms();
 
 // Static variables
 
@@ -47,5 +88,7 @@ public:
 
 // Static functions
 	static void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH);
+	static void updateInput(GLFWwindow* window);
+	static void updateInput(GLFWwindow* window, Mesh& mesh);
 };
 

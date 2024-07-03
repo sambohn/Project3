@@ -1,7 +1,10 @@
+#ifndef MESH_H
+#define MESH_H
+
 #pragma once
 
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 
 // classes
 #include "Vertex.h"
@@ -10,9 +13,7 @@
 #include "Texture.h"
 #include "Material.h"
 
-
 class Mesh {
-
 private:
     unsigned nrOfVertices;
     unsigned nrOfIndices;
@@ -27,9 +28,9 @@ private:
     glm::mat4 ModelMatrix;
 
     void initVAO(Primitive* primitive) {
-
         // Set variables -> CPU to GPU
-        this->nrOfIndices = primitive->getNrOfIndicies();
+
+        this->nrOfIndices = primitive->getNrOfIndices(); // Corrected function name
         this->nrOfVertices = primitive->getNrOfVertices();
 
         // Create VAO
@@ -49,9 +50,9 @@ private:
         // Element Buffer Object
         glGenBuffers(1, &this->EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), primitive->getIndicies(), GL_STATIC_DRAW); // Do once (All on GPU side)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), primitive->getIndices(), GL_STATIC_DRAW); // Do once (All on GPU side)
 
-        // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
+        // SET VERTEXATTRIBPOINTERS & ENABLE (Input Assembly)
         // GLuint attribloc = glGetAttribLocation(core_program);
 
         // Position
@@ -74,15 +75,10 @@ private:
         glBindVertexArray(0); // Unbind any active Array
     }
 
-
-    void initVAO(Vertex* vertexArray,
-        const unsigned& numVerticies,
-        GLuint* indexArray,
-        const unsigned& numIndicies) {
-
+    void initVAO(Vertex* vertexArray, const unsigned& numVertices, GLuint* indexArray, const unsigned& numIndices) {
         // Set variables -> CPU to GPU
-        this->nrOfIndices = numIndicies;
-        this->nrOfVertices = numVerticies;
+        this->nrOfIndices = numIndices;
+        this->nrOfVertices = numVertices;
 
         // Create VAO
         // VAO, VBO, EBO
@@ -103,7 +99,7 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), indexArray, GL_STATIC_DRAW); // Do once (All on GPU side)
 
-        // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
+        // SET VERTEXATTRIBPOINTERS & ENABLE (Input Assembly)
         // GLuint attribloc = glGetAttribLocation(core_program);
 
         // Position
@@ -126,7 +122,6 @@ private:
         glBindVertexArray(0); // Unbind any active Array
     }
 
-
     void updateUniforms(Shader* shader) {
         shader->setMat4fv(this->ModelMatrix, "ModelMatrix");
     }
@@ -141,11 +136,8 @@ private:
     }
 
 public:
-    Mesh(Primitive* primitive,
-        glm::vec3 position = glm::vec3(0.f),
-        glm::vec3 rotation = glm::vec3(0.f),
-        glm::vec3 scale = glm::vec3(1.f)) {
 
+    Mesh(Primitive* primitive, glm::vec3 position = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)) {
         this->position = position;
         this->rotation = rotation;
         this->scale = scale;
@@ -154,19 +146,12 @@ public:
         this->updateModelMatrix();
     }
 
-    Mesh(Vertex* vertexArray,
-        const unsigned& numVerticies,
-        GLuint* indexArray,
-        const unsigned& numIndicies,
-        glm::vec3 position = glm::vec3(0.f),
-        glm::vec3 rotation = glm::vec3(0.f),
-        glm::vec3 scale = glm::vec3(1.f)) {
-
+    Mesh(Vertex* vertexArray, const unsigned& numVertices, GLuint* indexArray, const unsigned& numIndices, glm::vec3 position = glm::vec3(0.f), glm::vec3 rotation = glm::vec3(0.f), glm::vec3 scale = glm::vec3(1.f)) {
         this->position = position;
         this->rotation = rotation;
         this->scale = scale;
 
-        this->initVAO(vertexArray, numVerticies, indexArray, numIndicies);
+        this->initVAO(vertexArray, numVertices, indexArray, numIndices);
         this->updateModelMatrix();
     }
 
@@ -201,7 +186,6 @@ public:
         this->scale += scale;
     }
 
-
     // Functions
     void update() {
         // Update logic
@@ -221,3 +205,5 @@ public:
         glDrawElements(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0);
     }
 };
+
+#endif // MESH_H

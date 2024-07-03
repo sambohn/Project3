@@ -1,3 +1,6 @@
+#ifndef LIBS_H
+#define LIBS_H
+
 #pragma once
 #include <iostream>
 #include <fstream>
@@ -16,7 +19,7 @@
 #include <vec4.hpp> // glm::vec4
 #include <mat4x4.hpp> // glm::mat4
 #include <gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
-#include <gtc\type_ptr.hpp>
+#include <gtc/type_ptr.hpp> // Note the forward slash
 
 // Load images & textures
 #include <SOIL2.h>
@@ -31,6 +34,4 @@
 
 #include <windows.h>
 
-
-
-
+#endif // LIBS_H
