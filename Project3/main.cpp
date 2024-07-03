@@ -189,7 +189,7 @@ int main() {
 
     // Create Window
     const int GLmajorVersion = 4;
-    const int GLminorVersion = 5;
+    const int GLminorVersion = 4;
     const int WINDOW_WIDTH = 640;
     const int WINDOW_HEIGHT = 480;
     int framebufferWidth = WINDOW_WIDTH;
@@ -234,7 +234,7 @@ int main() {
     // MODEL
 
     // MODEL MESH
-    Mesh test(&Triangle());
+    Mesh test(new Triangle());
 
 
     // TEXTURE0 INIT

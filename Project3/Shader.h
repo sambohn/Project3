@@ -37,7 +37,7 @@ private:
         in_file.close();
 
         std::string versionNr = std::to_string(versionMajor) + std::to_string(versionMinor) + "0";
-            std::cout << src.replace(src.find("#version"), 12, "#version"+versionNr) << "\n";
+            std::cout << src.replace(src.find("#version"), 12, "#version "+versionNr) << "\n";
 
         return src;
     }
