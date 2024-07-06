@@ -148,6 +148,7 @@ void Game::update() {
 
     // Update input
     glfwPollEvents();
+    this->updateInput(this->window);
     this->updateInput(this->window, *this->meshes[MESH_QUAD]);
 }
 
@@ -176,6 +177,14 @@ void Game::render() {
 
     this->meshes[MESH_QUAD]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
+
+    this->textures[TEX_FISH0]->bind(1);
+    this->textures[TEX_FISH1]->bind(0);
+
+
+    this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
+
+
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
     glFlush();
@@ -199,7 +208,7 @@ void Game::initShaders() {
 
 void Game::initTextures() {
     // TEXTURE0 INIT
-    this->textures.push_back(new Texture("Images/fish.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("Images/coral.png", GL_TEXTURE_2D));
 
     // TEXTURE1 INIT
     this->textures.push_back(new Texture("Images/yoyo.png", GL_TEXTURE_2D));
@@ -213,6 +222,7 @@ void Game::initMaterials() {
 }
 
 void Game::initMeshes() {
+    this->meshes.push_back(new Mesh(new Quad()));
     this->meshes.push_back(new Mesh(new Quad()));
 }
 
@@ -260,6 +270,7 @@ void Game::updateInput(GLFWwindow* window) {
     // Close window on [ESC] pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+        printf("ESC pressed.");
     }
 }
 
