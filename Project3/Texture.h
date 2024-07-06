@@ -1,84 +1,69 @@
+#ifndef TEXTURE_H
+#define TEXTURE_H
+
 #pragma once
-#include <iostream>
-#include <sstream>
-#include <string>
-
-// OpenGL
 #include <glew.h>
-#include <glfw3.h>
-
-// Load images & textures
 #include <SOIL2.h>
+#include <string>
+#include <iostream>
 
 class Texture {
-
 private:
-	GLuint id;
-	int width;
-	int height;
+    GLuint id;
+    int width;
+    int height;
     unsigned int type;
-    GLint textureUnit;
 
 public:
-	Texture(const char* fileName, GLenum type, GLint textureUnit) { // create texture from a file
-
-        if (this->id) {
-            glDeleteTextures(1, &this->id); // If already exists, clear memory.
-        }
-
+    Texture(const char* fileName, GLenum type) { // Create texture from a file
+        this->id = 0; // Initialize id to 0
         this->type = type;
-        this->textureUnit = textureUnit;
 
         // TEXTURE INIT
         unsigned char* image = SOIL_load_image(fileName, &this->width, &this->height, NULL, SOIL_LOAD_RGBA);
 
-        // Get texture ID
-        glGenTextures(1, &this->id);
-        glBindTexture(type, this->id);
-
         if (image) {
+            glGenTextures(1, &this->id);
+            glBindTexture(type, this->id);
+
             glTexImage2D(type, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-            glGenerateMipmap(type); // makes smaller & biger versions for distance
+            glGenerateMipmap(type); // Generate mipmap for distance
 
-            // Repeat texture to fill canvas
-            glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
+            // Set texture parameters
+            glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
-            glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
+            glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-
+            // Texture cleanup
+            glActiveTexture(0); // No active texture
+            glBindTexture(type, 0); // Unbind all textures
+            SOIL_free_image_data(image); // Free loaded texture from memory
         }
         else {
-            std::cout << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED: " << fileName <<"\n";
+            std::cerr << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED: " << fileName << "\n";
         }
+    }
 
-        // Texture cleanup
-        glActiveTexture(0); // No active texture
-        glBindTexture(type, 0); // Unbind all textures
-        SOIL_free_image_data(image); // Free loaded texture from memory
-	}
-
-	~Texture() {
-		glDeleteTextures(1, &this->id);
-	}
+    ~Texture() {
+        if (this->id) {
+            glDeleteTextures(1, &this->id); // Delete texture if it exists
+        }
+    }
 
     inline GLuint getID() const { return this->id; }
 
-    void bind() {
-        glActiveTexture(GL_TEXTURE0 + textureUnit);
+    void bind(const GLint texture_unit) {
+        glActiveTexture(GL_TEXTURE0 + texture_unit);
         glBindTexture(type, this->id);
     }
 
     void unbind() {
-
         glActiveTexture(0);
-        glBindTexture(type, 0); // unbind texture
+        glBindTexture(type, 0); // Unbind texture
     }
 
-    inline GLint getTextureUnit() const { return textureUnit; }
-
     void loadFromFile(const char* fileName) {
-
         if (this->id) {
             glDeleteTextures(1, &this->id); // If already exists, clear memory.
         }
@@ -86,30 +71,28 @@ public:
         // TEXTURE INIT
         unsigned char* image = SOIL_load_image(fileName, &this->width, &this->height, NULL, SOIL_LOAD_RGBA);
 
-        // Get texture ID
-        glGenTextures(1, &this->id);
-        glBindTexture(this->type, this->id);
-
         if (image) {
+            glGenTextures(1, &this->id);
+            glBindTexture(this->type, this->id);
+
             glTexImage2D(this->type, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-            glGenerateMipmap(this->type); // makes smaller & biger versions for distance
+            glGenerateMipmap(this->type); // Generate mipmap for distance
 
-            // Repeat texture to fill canvas
-            glTexParameteri(this->type, GL_TEXTURE_WRAP_S, GL_REPEAT); // S=Xcoord T=Ycoord
+            // Set texture parameters
+            glTexParameteri(this->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(this->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(this->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); // antialiasing
-            glTexParameteri(this->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // MAGnification, MINification (no mipmap)
+            glTexParameteri(this->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(this->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-
+            // Texture cleanup
+            glActiveTexture(0); // No active texture
+            glBindTexture(type, 0); // Unbind all textures
+            SOIL_free_image_data(image); // Free loaded texture from memory
         }
         else {
-            std::cout << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED: " << fileName << "\n";
+            std::cerr << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED: " << fileName << "\n";
         }
-
-        // Texture cleanup
-        glActiveTexture(0); // No active texture
-        glBindTexture(type, 0); // Unbind all textures
-        SOIL_free_image_data(image); // Free loaded texture from memory
-
     }
 };
+
+#endif // TEXTURE_H
