@@ -301,4 +301,4 @@ void Game::updateInput(GLFWwindow* window, Mesh& mesh) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
     }
 }
-;S
+;

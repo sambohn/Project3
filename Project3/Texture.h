@@ -13,6 +13,7 @@ private:
     int width;
     int height;
     unsigned int type;
+    GLint textureUnit;
 
 public:
     Texture(const char* fileName, GLenum type) { // Create texture from a file
@@ -93,6 +94,8 @@ public:
             std::cerr << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED: " << fileName << "\n";
         }
     }
+
+    GLint getTextureUnit() { return this->textureUnit; }
 };
 
 #endif // TEXTURE_H
