@@ -234,7 +234,7 @@ int main() {
     // MODEL
 
     // MODEL MESH
-    Mesh test(new Triangle());
+    Mesh test(new Quad());
 
 
     // TEXTURE0 INIT
