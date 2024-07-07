@@ -3,7 +3,7 @@
 
 int main() {
 
-    Game game("Fish.exe", 640, 484, 4, 5, false);
+    Game game("Fish.exe", 1920, 1080, 4, 5, false);
 
 
     // MAIN PROGRAM LOOP

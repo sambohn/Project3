@@ -165,11 +165,15 @@ void Game::render() {
 
     this->updateUniforms();
 
+    // Update uniforms (textures)
+    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]); // update texture in shader [Fragment]
+
+    // Use program
     this->shaders[SHADER_CORE_PROGRAM]->use();
 
     // Activate texture (binding)
-    this->textures[TEX_FISH0]->bind(0);
-    this->textures[TEX_FISH1]->bind(1);
+    this->textures[TEX_FISH1]->bind(0);
+    this->textures[TEX_FISH_SPECULAR1]->bind(1);
 
 
 
@@ -180,8 +184,8 @@ void Game::render() {
 
     this->shaders[SHADER_CORE_PROGRAM]->use();
 
-    this->textures[TEX_FISH0]->bind(1);
-    this->textures[TEX_FISH1]->bind(0);
+    this->textures[TEX_CORAL0]->bind(0);
+    this->textures[TEX_CORAL_SPECULAR0]->bind(1);
 
 
     this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
@@ -211,16 +215,18 @@ void Game::initShaders() {
 void Game::initTextures() {
     // TEXTURE0 INIT
     this->textures.push_back(new Texture("Images/coral.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("Images/coral_specular.png", GL_TEXTURE_2D));
 
     // TEXTURE1 INIT
     this->textures.push_back(new Texture("Images/yoyo.png", GL_TEXTURE_2D));
+    this->textures.push_back(new Texture("Images/yoyo_specular.png", GL_TEXTURE_2D));
 }
 
 void Game::initMaterials() {
 
     this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f),
-        0,
-        1));
+        1,
+        0));
 }
 
 void Game::initMeshes() {
@@ -247,13 +253,11 @@ void Game::initUniforms() {
 
 void Game::updateUniforms() {
 
-    // Update uniforms (textures)
-    this->shaders[SHADER_CORE_PROGRAM]->set1i(0, "texture0"); // Bind shader program before sending data!!!
-    this->shaders[SHADER_CORE_PROGRAM]->set1i(1, "texture1");
-    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]); // update texture in shader [Fragment]
+    
 
     // get correct view plane every frame
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
+
     this->ProjectionMatrix = glm::mat4(1.f);
     this->ProjectionMatrix = glm::perspective(
         glm::radians(fov),
@@ -273,6 +277,10 @@ void Game::updateInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
         printf("ESC pressed.");
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        
     }
 }
 
