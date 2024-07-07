@@ -178,6 +178,8 @@ void Game::render() {
     this->meshes[MESH_QUAD]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
 
+    this->shaders[SHADER_CORE_PROGRAM]->use();
+
     this->textures[TEX_FISH0]->bind(1);
     this->textures[TEX_FISH1]->bind(0);
 
