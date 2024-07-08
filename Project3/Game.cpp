@@ -188,6 +188,8 @@ void Game::render() {
     this->textures[TEX_CORAL_SPECULAR0]->bind(1);
 
 
+    this->meshes[1]->setPosition(glm::vec3(0, 0, -0.5));
+
     this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
 
