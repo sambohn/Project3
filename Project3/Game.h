@@ -83,12 +83,14 @@ public:
 	void setWindowShouldClose();
 
 	// Functions
+	void updateInput();
 	void update();
 	void render();
 
 	// Static functions
 	static void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH);
-	static void updateInput(GLFWwindow* window);
-	static void updateInput(GLFWwindow* window, Mesh& mesh);
+
+
+
 };
 

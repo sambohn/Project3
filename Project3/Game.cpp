@@ -143,13 +143,40 @@ void Game::setWindowShouldClose() {
     glfwSetWindowShouldClose(this->window, GLFW_TRUE);
 }
 
+void Game::updateInput() {
+
+    // Close window on [ESC] pressed
+    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(this->window, GLFW_TRUE);
+    }
+
+    // Camera movement [WASD, ZX]
+    if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS) {
+        this->camPosition.z -= 0.01f;
+    }
+    if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS) {
+        this->camPosition.z += 0.01f;
+    }
+    if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS) {
+        this->camPosition.x -= 0.01f;
+    }
+    if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS) {
+        this->camPosition.x += 0.01f;
+    }
+    if (glfwGetKey(this->window, GLFW_KEY_X) == GLFW_PRESS) {
+        this->camPosition.y -= 0.01f;
+    }
+    if (glfwGetKey(this->window, GLFW_KEY_Z) == GLFW_PRESS) {
+        this->camPosition.y += 0.01f;
+    }
+}
+
 // Functions
 void Game::update() {
 
     // Update input
     glfwPollEvents();
-    this->updateInput(this->window);
-    this->updateInput(this->window, *this->meshes[MESH_QUAD]);
+    updateInput();
 }
 
 void Game::render() {
@@ -255,7 +282,9 @@ void Game::initUniforms() {
 
 void Game::updateUniforms() {
 
-    
+    // Update view matrix (camera)
+    this->ViewMatrix = glm::lookAt(this->camPosition, this->camPosition + this->camFront, this->worldUp);
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
 
     // get correct view plane every frame
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
@@ -272,56 +301,3 @@ void Game::updateUniforms() {
     this->shaders[SHADER_CORE_PROGRAM]->use(); // tell what shaders to use
 }
 
-// update input function
-void Game::updateInput(GLFWwindow* window) {
-
-    // Close window on [ESC] pressed
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-        printf("ESC pressed.");
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        
-    }
-}
-
-void Game::updateInput(GLFWwindow* window, Mesh& mesh) {
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        mesh.move(glm::vec3(0.f, 0.f, -0.001f));
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        mesh.move(glm::vec3(-0.001f, 0.f, 0.f));;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        mesh.move(glm::vec3(0.f, 0.f, 0.001f));
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        mesh.move(glm::vec3(0.001f, 0.f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        mesh.rotate(glm::vec3(0.f, 0.05f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        mesh.rotate(glm::vec3(0.f, -0.05f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        mesh.scaleUp(glm::vec3(-0.01f, -0.01f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-        mesh.scaleUp(glm::vec3(0.01f, 0.01f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) { // RESET POS
-        mesh.setPosition(glm::vec3(0.f));
-        mesh.setRotation(glm::vec3(0.f));
-        mesh.setScale(glm::vec3(1.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-    }
-}
-;
