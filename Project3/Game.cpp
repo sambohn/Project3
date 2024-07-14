@@ -232,7 +232,7 @@ void Game::initMaterials() {
 }
 
 void Game::initMeshes() {
-    this->meshes.push_back(new Mesh(new Quad()));
+    this->meshes.push_back(new Mesh(new Pyramid()));
     this->meshes.push_back(new Mesh(new Quad()));
 }
 

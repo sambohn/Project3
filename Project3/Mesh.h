@@ -47,9 +47,11 @@ private:
 
         // GEN EBO & BIND & SEND DATA
         // Element Buffer Object
-        glGenBuffers(1, &this->EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), primitive->getIndicies(), GL_STATIC_DRAW); // Do once (All on GPU side)
+        if (this->nrOfIndices > 0) {
+            glGenBuffers(1, &this->EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), primitive->getIndicies(), GL_STATIC_DRAW); // Do once (All on GPU side)
+        }
 
         // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
         // GLuint attribloc = glGetAttribLocation(core_program);
@@ -213,11 +215,15 @@ public:
         this->updateUniforms(shader);
 
         // Bind vertex array object
-        glBindVertexArray(VAO);
+        glBindVertexArray(this->VAO);
 
         shader->use(); // when update uniforms shader is unbound
 
         // RENDER
-        glDrawElements(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0);
+        if (this->nrOfIndices == 0) {
+            glDrawArrays(GL_TRIANGLES, 0, this->nrOfVertices);
+        }
+        else
+            glDrawElements(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0);
     }
 };
