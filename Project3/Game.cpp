@@ -54,6 +54,10 @@ void Game::initOpenGLOptions() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // fill shape with color [DEFAULT:FILL]
     glEnable(GL_BLEND); // blend colors
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Input
+    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 }
 
 void Game::initMatrices() {
@@ -76,7 +80,8 @@ Game::Game(
     const int WINDOW_WIDTH, const int WINDOW_HEIGHT,
     int GL_VERSION_MAJOR, int GL_VERSION_MINOR,
     bool resizable) : WINDOW_WIDTH(WINDOW_WIDTH), WINDOW_HEIGHT(WINDOW_HEIGHT),
-    GL_VERSION_MAJOR(GL_VERSION_MAJOR), GL_VERSION_MINOR(GL_VERSION_MINOR) {
+    GL_VERSION_MAJOR(GL_VERSION_MAJOR), GL_VERSION_MINOR(GL_VERSION_MINOR),
+    camera(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 1.f, 0.f)) {
 
     // Init variables
     this->framebufferHeight = WINDOW_HEIGHT;
@@ -84,16 +89,27 @@ Game::Game(
 
     // Create view matrix
     // CAMERA [STATIC VECTOR & POS]
-    this->camPosition = glm::vec3(0.f, 0.f, 1.f);
-    this->worldUp = glm::vec3(0.f, 1.f, 0.f); // Up
     this->camFront = glm::vec3(0.f, 0.f, -1.f); // Forward
-    this->ViewMatrix = glm::mat4(1.f);
+    this->ViewMatrix = camera.getViewMatrix();
 
     // Create projection matrix
     this->fov = 90.f;
     this->nearPlane = 0.1f; // Not 0. Want slightly behind cam to avoid clipping
     this->farPlane = 1000.f;
     this->ProjectionMatrix = glm::mat4(1.f);
+
+    // Delta time
+    this->dt = 0.f;
+    this->curTime = 0.f;
+    this->lastTime = 0.f;
+    
+
+    this->lastMouseX = 0.0;
+    this->lastMouseY = 0.0;
+    this->mouseX = 0.0;
+    this->mouseOffsetX = 0.0;
+    this->mouseOffsetY = 0.0;
+    this->firstMouse = true;
 
     this->initGLFW();
     this->initWindow(title, resizable);
@@ -143,7 +159,32 @@ void Game::setWindowShouldClose() {
     glfwSetWindowShouldClose(this->window, GLFW_TRUE);
 }
 
-void Game::updateInput() {
+// Makes framerate independent
+void Game::updateDt() {
+    this->curTime = static_cast<float>(glfwGetTime());
+    this->dt = this->curTime - this->lastTime;
+    this->lastTime = this->curTime;
+}
+
+void Game::updateMouseInput() {
+    glfwGetCursorPos(this->window, &this->mouseX, &this->mouseY);
+    if (this->firstMouse) {
+        this->lastMouseX = this->mouseX;
+        this->lastMouseY = this->mouseY;
+        this->firstMouse = false;
+    }
+
+    // Calc offset
+    this->mouseOffsetX = this->mouseX - this->lastMouseX;
+    this->mouseOffsetY = this->mouseY - this->lastMouseY;
+
+    // Set last X and Y
+    this->lastMouseX = this->mouseX;
+    this->lastMouseY = this->mouseY;
+     
+}
+
+void Game::updateKeyboardInput() {
 
     // Close window on [ESC] pressed
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -171,12 +212,22 @@ void Game::updateInput() {
     }
 }
 
+void Game::updateInput() {
+    glfwPollEvents();
+    this->updateKeyboardInput();
+    this->updateMouseInput();
+    this->camera.updateInput(dt, -1, this->mouseOffsetX, this->mouseOffsetY);
+}
+
 // Functions
 void Game::update() {
 
     // Update input
-    glfwPollEvents();
-    updateInput();
+    this->updateDt();
+    this->updateInput();
+
+    this->meshes[MESH_QUAD]->rotate(glm::vec3(0.f, 0.05f, 0.0f));
+    
 }
 
 void Game::render() {
@@ -276,15 +327,15 @@ void Game::initUniforms() {
 
     // Send light pos -> fragment shader
     this->shaders[SHADER_CORE_PROGRAM]->setVec3f(*this->lights[0], "lightPos0");
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camPosition, "cameraPos");
 
 }
 
 void Game::updateUniforms() {
 
     // Update view matrix (camera)
-    this->ViewMatrix = glm::lookAt(this->camPosition, this->camPosition + this->camFront, this->worldUp);
+    this->ViewMatrix = this->camera.getViewMatrix();
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
+    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
 
     // get correct view plane every frame
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);

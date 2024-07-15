@@ -1,5 +1,6 @@
 #pragma once
 #include "libs.h"
+#include "Camera.h"
 
 
 // Enumerations
@@ -24,12 +25,31 @@ private:
 	const int GL_VERSION_MAJOR;
 	const int GL_VERSION_MINOR;
 
+	// Delta time [ independent of frame rate]
+	float dt;
+	float curTime;
+	float lastTime;
+
+	// Mouse & Cursor
+	double lastMouseX;
+	double lastMouseY;
+	double mouseX;
+	double mouseY;
+	double mouseOffsetX;
+	double mouseOffsetY;
+	bool firstMouse;
+
+	// Camera
+	Camera camera;
+
 	// Matrices
 	glm::mat4 ViewMatrix;
 	glm::mat4 ProjectionMatrix;
 	glm::vec3 camPosition;
 	glm::vec3 worldUp;
 	glm::vec3 camFront;
+
+	
 
 	float fov;
 	float nearPlane; // Not 0. Want slightly behind cam to avoid clipping
@@ -83,6 +103,9 @@ public:
 	void setWindowShouldClose();
 
 	// Functions
+	void updateDt();
+	void updateMouseInput();
+	void updateKeyboardInput();
 	void updateInput();
 	void update();
 	void render();
