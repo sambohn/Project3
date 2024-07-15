@@ -193,22 +193,22 @@ void Game::updateKeyboardInput() {
 
     // Camera movement [WASD, ZX]
     if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS) {
-        this->camPosition.z -= 0.01f;
+        this->camera.move(this->dt, FORWARD);
     }
     if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS) {
-        this->camPosition.z += 0.01f;
+        this->camera.move(this->dt, BACKWARD);
     }
     if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS) {
-        this->camPosition.x -= 0.01f;
+        this->camera.move(this->dt, LEFT);
     }
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS) {
-        this->camPosition.x += 0.01f;
+        this->camera.move(this->dt, RIGHT);
     }
     if (glfwGetKey(this->window, GLFW_KEY_X) == GLFW_PRESS) {
-        this->camPosition.y -= 0.01f;
+        
     }
     if (glfwGetKey(this->window, GLFW_KEY_Z) == GLFW_PRESS) {
-        this->camPosition.y += 0.01f;
+        
     }
 }
 
@@ -315,7 +315,7 @@ void Game::initMeshes() {
 }
 
 void Game::initLights() {
-    this->lights.push_back(new glm::vec3(0.f, 0.f, -1.f));
+    this->lights.push_back(new glm::vec3(0.f, 0.f, 1.f));
 }
 
 void Game::initUniforms() {

@@ -52,7 +52,7 @@ public:
 		this->ViewMatrix = glm::mat4(1.f);
 
 		this->movementSpeed = 3.f;
-		this->sensitivity = 10.f;
+		this->sensitivity = 20.f;
 		this->worldUp = worldUp;
 		this->position = position;
 		this->right = glm::vec3(0.f);
@@ -79,8 +79,7 @@ public:
 		return this->position;
 	}
 
-	// Functions
-	void updateKeyboardInput(const float& dt, const int direction) {
+	void move(const float& dt, const int direction) {
 		// Update position vector
 		switch (direction) {
 		case FORWARD:
@@ -101,8 +100,8 @@ public:
 	}
 
 	void updateMouseInput(const float& dt, const double& offsetX, const double& offsetY) {
-		// Update pitch yaw and roll
-		this->pitch += static_cast<GLfloat>(offsetY) * this->sensitivity * dt; // Pitch = up & down
+		// Invert the mouse Y offset
+		this->pitch -= static_cast<GLfloat>(offsetY) * this->sensitivity * dt; // Pitch = up & down (inverted)
 		this->yaw += static_cast<GLfloat>(offsetX) * this->sensitivity * dt; // Yaw = Left & Right
 
 		// Check bounds
@@ -116,7 +115,7 @@ public:
 	}
 
 	void updateInput(const float& dt, const int direction, const double& offsetX, const double& offsetY) {
-		this->updateKeyboardInput(dt, direction);
+		this->move(dt, direction);
 		this->updateMouseInput(dt, offsetX, offsetY);
 		
 	}
