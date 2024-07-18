@@ -121,6 +121,7 @@ Game::Game(
     this->initTextures();
     this->initMaterials(); // Textures before materials
     this->initMeshes();
+    this->initModels();
     this->initLights(); // Lights before uniforms
     this->initUniforms();
 
@@ -144,6 +145,8 @@ Game::~Game() {
         delete this->materials[i];
     for (size_t i = 0; i < this->meshes.size(); i++)
         delete this->meshes[i];
+    for (size_t i = 0; i < this->models.size(); i++)
+        delete this->models[i];
     for (size_t i = 0; i < this->lights.size(); i++)
         delete this->lights[i];
 }
@@ -226,7 +229,7 @@ void Game::update() {
     this->updateDt();
     this->updateInput();
 
-    this->meshes[MESH_QUAD]->rotate(glm::vec3(0.f, 0.05f, 0.0f));
+   // this->meshes[MESH_QUAD]->rotate(glm::vec3(0.f, 0.05f, 0.0f));
     
 }
 
@@ -243,33 +246,8 @@ void Game::render() {
 
     this->updateUniforms();
 
-    // Update uniforms (textures)
-    this->materials[MAT_1]->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]); // update texture in shader [Fragment]
-
-    // Use program
-    this->shaders[SHADER_CORE_PROGRAM]->use();
-
-    // Activate texture (binding)
-    this->textures[TEX_FISH1]->bind(0);
-    this->textures[TEX_FISH_SPECULAR1]->bind(1);
-
-
-
-    // Draw
-
-    this->meshes[MESH_QUAD]->render(this->shaders[SHADER_CORE_PROGRAM]);
-
-
-    this->shaders[SHADER_CORE_PROGRAM]->use();
-
-    this->textures[TEX_CORAL0]->bind(0);
-    this->textures[TEX_CORAL_SPECULAR0]->bind(1);
-
-
-    this->meshes[1]->setPosition(glm::vec3(0, 0, -0.5));
-
-    this->meshes[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
-
+   // Render models
+    this->models[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
@@ -312,6 +290,15 @@ void Game::initMaterials() {
 void Game::initMeshes() {
     this->meshes.push_back(new Mesh(new Pyramid()));
     this->meshes.push_back(new Mesh(new Quad()));
+}
+
+void Game::initModels() {
+    this->models.push_back(
+        new Model(glm::vec3(0.f),
+            this->materials[0],
+            this->textures[TEX_CORAL0],
+            this->textures[TEX_CORAL_SPECULAR0],
+            this->meshes));
 }
 
 void Game::initLights() {
