@@ -14,6 +14,8 @@
 class Mesh {
 
 private:
+    Vertex* vertexArray;
+    GLuint* indexArray;
     unsigned nrOfVertices;
     unsigned nrOfIndices;
 
@@ -26,12 +28,7 @@ private:
     glm::vec3 scale;
     glm::mat4 ModelMatrix;
 
-    void initVAO(Primitive* primitive) {
-
-        // Set variables -> CPU to GPU
-        this->nrOfIndices = primitive->getNrOfIndicies();
-        this->nrOfVertices = primitive->getNrOfVertices();
-
+    void initVAO() {
         // Create VAO
         // VAO, VBO, EBO
         // GEN VAO, & BIND
@@ -43,14 +40,14 @@ private:
         // Vertex Buffer Object
         glGenBuffers(1, &this->VBO);
         glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->nrOfVertices * sizeof(Vertex), primitive->getVertices(), GL_STATIC_DRAW); // Data sent to GPU
+        glBufferData(GL_ARRAY_BUFFER, this->nrOfVertices * sizeof(Vertex), this->vertexArray, GL_STATIC_DRAW); // Data sent to GPU
 
         // GEN EBO & BIND & SEND DATA
         // Element Buffer Object
         if (this->nrOfIndices > 0) {
             glGenBuffers(1, &this->EBO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), primitive->getIndicies(), GL_STATIC_DRAW); // Do once (All on GPU side)
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), this->indexArray, GL_STATIC_DRAW); // Do once (All on GPU side)
         }
 
         // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
@@ -77,57 +74,6 @@ private:
     }
 
 
-    void initVAO(Vertex* vertexArray,
-        const unsigned& numVerticies,
-        GLuint* indexArray,
-        const unsigned& numIndicies) {
-
-        // Set variables -> CPU to GPU
-        this->nrOfIndices = numIndicies;
-        this->nrOfVertices = numVerticies;
-
-        // Create VAO
-        // VAO, VBO, EBO
-        // GEN VAO, & BIND
-        // VAO: vertex Array Object
-        glCreateVertexArrays(1, &this->VAO);
-        glBindVertexArray(this->VAO);
-
-        // GEN VBO & BIND & SEND DATA
-        // Vertex Buffer Object
-        glGenBuffers(1, &this->VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->nrOfVertices * sizeof(Vertex), vertexArray, GL_STATIC_DRAW); // Data sent to GPU
-
-        // GEN EBO & BIND & SEND DATA
-        // Element Buffer Object
-        glGenBuffers(1, &this->EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->nrOfIndices * sizeof(GLuint), indexArray, GL_STATIC_DRAW); // Do once (All on GPU side)
-
-        // SET VERTEXATRIPOINTERS & ENABLE (Input Assembly)
-        // GLuint attribloc = glGetAttribLocation(core_program);
-
-        // Position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, position));
-        glEnableVertexAttribArray(0);
-
-        // Color
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, color));
-        glEnableVertexAttribArray(1);
-
-        // Texcoord
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texcoord));
-        glEnableVertexAttribArray(2);
-
-        // Normal
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
-        glEnableVertexAttribArray(3);
-
-        // BIND VAO 0
-        glBindVertexArray(0); // Unbind any active Array
-    }
-
 
     void updateUniforms(Shader* shader) {
         shader->setMat4fv(this->ModelMatrix, "ModelMatrix");
@@ -152,14 +98,29 @@ public:
         this->rotation = rotation;
         this->scale = scale;
 
-        this->initVAO(primitive);
+        this->nrOfVertices = primitive->getNrOfVertices();
+        this->nrOfIndices = primitive->getNrOfIndicies();
+
+        // Copy over data [ memory intensive!!!]
+        this->vertexArray = new Vertex[this->nrOfVertices];
+        for (size_t i = 0; i < this->nrOfVertices; i++) {
+            this->vertexArray[i] = primitive->getVertices()[i];
+        }
+
+        this->indexArray = new GLuint[this->nrOfIndices];
+        for (size_t i = 0; i < this->nrOfIndices; i++) {
+            this->indexArray[i] = primitive->getIndicies()[i];
+        }
+         
+
+        this->initVAO();
         this->updateModelMatrix();
     }
 
     Mesh(Vertex* vertexArray,
-        const unsigned& numVerticies,
+        const unsigned& nrOfVertices,
         GLuint* indexArray,
-        const unsigned& numIndicies,
+        const unsigned& nrOfIndices,
         glm::vec3 position = glm::vec3(0.f),
         glm::vec3 rotation = glm::vec3(0.f),
         glm::vec3 scale = glm::vec3(1.f)) {
@@ -168,14 +129,59 @@ public:
         this->rotation = rotation;
         this->scale = scale;
 
-        this->initVAO(vertexArray, numVerticies, indexArray, numIndicies);
+        this->position = position;
+        this->rotation = rotation;
+        this->scale = scale;
+
+        this->nrOfVertices = nrOfVertices;
+        this->nrOfIndices = nrOfIndices;
+
+        // Copy over data [ memory intensive!!!]
+        this->vertexArray = new Vertex[this->nrOfVertices];
+        for (size_t i = 0; i < nrOfVertices; i++) {
+            this->vertexArray[i] = vertexArray[i];
+        }
+
+        this->indexArray = new GLuint[this->nrOfIndices];
+        for (size_t i = 0; i < nrOfIndices; i++) {
+            this->indexArray[i] = indexArray[i];
+        }
+
+        this->initVAO();
+        this->updateModelMatrix();
+    }
+
+    Mesh(const Mesh& obj) {
+        this->position = obj.position;
+        this->rotation = obj.rotation;
+        this->scale = obj.scale;
+
+        this->nrOfVertices = obj.nrOfVertices;
+        this->nrOfIndices = obj.nrOfIndices;
+
+        // Copy over data [ memory intensive!!!]
+        this->vertexArray = new Vertex[this->nrOfVertices];
+        for (size_t i = 0; i < this->nrOfVertices; i++) {
+            this->vertexArray[i] = obj.vertexArray[i];
+        }
+
+        this->indexArray = new GLuint[this->nrOfIndices];
+        for (size_t i = 0; i < this->nrOfIndices; i++) {
+            this->indexArray[i] = obj.indexArray[i];
+        }
+
+        this->initVAO();
         this->updateModelMatrix();
     }
 
     ~Mesh() {
         glDeleteVertexArrays(1, &this->VAO);
         glDeleteBuffers(1, &this->VBO);
-        glDeleteBuffers(1, &this->EBO);
+        if (this->nrOfIndices > 0)
+            glDeleteBuffers(1, &this->EBO);
+        delete[] this->vertexArray;
+        delete[] this->indexArray;
+
     }
 
     // Modifiers

@@ -120,7 +120,6 @@ Game::Game(
     this->initShaders();
     this->initTextures();
     this->initMaterials(); // Textures before materials
-    this->initMeshes();
     this->initModels();
     this->initLights(); // Lights before uniforms
     this->initUniforms();
@@ -229,7 +228,7 @@ void Game::update() {
     this->updateDt();
     this->updateInput();
 
-   // this->meshes[MESH_QUAD]->rotate(glm::vec3(0.f, 0.05f, 0.0f));
+    this->models[0]->rotate(glm::vec3(0.f, 0.05f, 0.f));
     
 }
 
@@ -287,18 +286,20 @@ void Game::initMaterials() {
         0));
 }
 
-void Game::initMeshes() {
+void Game::initModels() {
+
     this->meshes.push_back(new Mesh(new Pyramid()));
     this->meshes.push_back(new Mesh(new Quad()));
-}
 
-void Game::initModels() {
     this->models.push_back(
         new Model(glm::vec3(0.f),
             this->materials[0],
             this->textures[TEX_CORAL0],
             this->textures[TEX_CORAL_SPECULAR0],
             this->meshes));
+
+    for (auto*& i : this->meshes)
+        delete i;
 }
 
 void Game::initLights() {
