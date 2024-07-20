@@ -34,6 +34,11 @@ public:
 		for (auto* i : meshes) {// Using iterators. Faster than regular loops
 			this->meshes.push_back(new Mesh(*i));
 		}
+
+		for (auto* i : this->meshes) {
+			i->move(this->position);
+			i->setOrigin(this->position);
+		}
 	}
 
 	~Model() {

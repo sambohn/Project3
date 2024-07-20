@@ -142,8 +142,6 @@ Game::~Game() {
         delete this->textures[i];
     for (size_t i = 0; i < this->materials.size(); i++)
         delete this->materials[i];
-    for (size_t i = 0; i < this->meshes.size(); i++)
-        delete this->meshes[i];
     for (size_t i = 0; i < this->models.size(); i++)
         delete this->models[i];
     for (size_t i = 0; i < this->lights.size(); i++)
@@ -229,6 +227,8 @@ void Game::update() {
     this->updateInput();
 
     this->models[0]->rotate(glm::vec3(0.f, 0.05f, 0.f));
+    this->models[1]->rotate(glm::vec3(0.f, 0.05f, 0.f));
+    this->models[2]->rotate(glm::vec3(0.f, 0.05f, 0.f));
     
 }
 
@@ -247,6 +247,8 @@ void Game::render() {
 
    // Render models
     this->models[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    this->models[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    this->models[2]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
@@ -288,17 +290,51 @@ void Game::initMaterials() {
 
 void Game::initModels() {
 
-    this->meshes.push_back(new Mesh(new Pyramid()));
-    this->meshes.push_back(new Mesh(new Quad()));
+    // MODEL CONSTRUCTION
+    std::vector<Mesh*> meshes;
+    meshes.push_back(new Mesh(new Pyramid(),
+        glm::vec3(-1.f, 0.f, 0.f), // Position
+        glm::vec3(0.f), // Origin
+        glm::vec3(0.f), // Rotation
+        glm::vec3(1.f))); // Scale
 
+
+    meshes.push_back(new Mesh(new Pyramid(),
+        glm::vec3(0.f, 0.f, 0.f), // Position
+        glm::vec3(0.f), // Origin
+        glm::vec3(0.f), // Rotation
+        glm::vec3(1.5f))); // Scale
+
+
+    meshes.push_back(new Mesh(new Quad(),
+        glm::vec3(1.f, 0.f, 0.f), // Position
+        glm::vec3(0.f), // Origin
+        glm::vec3(0.f), // Rotation
+        glm::vec3(2.f))); // Scale
+
+    // MODELS
     this->models.push_back(
         new Model(glm::vec3(0.f),
             this->materials[0],
             this->textures[TEX_CORAL0],
             this->textures[TEX_CORAL_SPECULAR0],
-            this->meshes));
+            meshes));
 
-    for (auto*& i : this->meshes)
+    this->models.push_back(
+        new Model(glm::vec3(2.f, 0.f, 0.f),
+            this->materials[0],
+            this->textures[TEX_FISH1],
+            this->textures[TEX_FISH_SPECULAR1],
+            meshes));
+
+    this->models.push_back(
+        new Model(glm::vec3(4.f, 0.f, 0.f),
+            this->materials[0],
+            this->textures[TEX_FISH_SPECULAR1],
+            this->textures[TEX_FISH_SPECULAR1],
+            meshes));
+
+    for (auto*& i : meshes)
         delete i;
 }
 
