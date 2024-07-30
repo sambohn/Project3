@@ -67,15 +67,17 @@ public:
 		// Use program
 		shader->use();
 
-		// Activate texture (binding)
-		this->overrideTextureDiffuse->bind(0);
-		this->overrideTextureSpecular->bind(1);
+		
 
 
 
 		// Draw
-		for (auto& i : this->meshes)
+		for (auto& i : this->meshes) {
+			// Activate texture (binding)
+			this->overrideTextureDiffuse->bind(0);
+			this->overrideTextureSpecular->bind(1);
 			i->render(shader);
+		}
 
 		//// unbinding [CLEANUP]
 		//glBindVertexArray(0);

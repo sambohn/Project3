@@ -120,6 +120,7 @@ Game::Game(
     this->initShaders();
     this->initTextures();
     this->initMaterials(); // Textures before materials
+    this->initOBJModels();
     this->initModels();
     this->initLights(); // Lights before uniforms
     this->initUniforms();
@@ -226,9 +227,6 @@ void Game::update() {
     this->updateDt();
     this->updateInput();
 
-    this->models[0]->rotate(glm::vec3(0.f, 0.05f, 0.f));
-    this->models[1]->rotate(glm::vec3(0.f, 0.05f, 0.f));
-    this->models[2]->rotate(glm::vec3(0.f, 0.05f, 0.f));
     
 }
 
@@ -247,8 +245,8 @@ void Game::render() {
 
    // Render models
     this->models[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
-    this->models[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
-    this->models[2]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    //this->models[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
+    //this->models[2]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
@@ -279,45 +277,34 @@ void Game::initTextures() {
     // TEXTURE1 INIT
     this->textures.push_back(new Texture("Images/yoyo.png", GL_TEXTURE_2D));
     this->textures.push_back(new Texture("Images/yoyo_specular.png", GL_TEXTURE_2D));
+
+    this->textures.push_back(new Texture("Images/blank.png", GL_TEXTURE_2D));
 }
 
 void Game::initMaterials() {
 
-    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f),
+    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(2.f),
         1,
         0));
 }
 
 void Game::initModels() {
 
-    // MODEL CONSTRUCTION
     std::vector<Mesh*> meshes;
-    meshes.push_back(new Mesh(new Pyramid(),
-        glm::vec3(-1.f, 0.f, 0.f), // Position
-        glm::vec3(0.f), // Origin
-        glm::vec3(0.f), // Rotation
-        glm::vec3(1.f))); // Scale
+    std::vector<Vertex> mesh = loadOBJ("OBJFiles/sturgeon.obj");
+    meshes.push_back(new Mesh(mesh.data(), mesh.size(), NULL, 0, glm::vec3(0.f, 0.f, -1.f),
+        glm::vec3(0.f),
+        glm::vec3(-90.f, 0.f, 90.f),
+        glm::vec3(0.4f)));
 
 
-    meshes.push_back(new Mesh(new Pyramid(),
-        glm::vec3(0.f, 0.f, 0.f), // Position
-        glm::vec3(0.f), // Origin
-        glm::vec3(0.f), // Rotation
-        glm::vec3(1.5f))); // Scale
-
-
-    meshes.push_back(new Mesh(new Quad(),
-        glm::vec3(1.f, 0.f, 0.f), // Position
-        glm::vec3(0.f), // Origin
-        glm::vec3(0.f), // Rotation
-        glm::vec3(2.f))); // Scale
 
     // MODELS
     this->models.push_back(
         new Model(glm::vec3(0.f),
             this->materials[0],
-            this->textures[TEX_CORAL0],
-            this->textures[TEX_CORAL_SPECULAR0],
+            this->textures[BLANK],
+            this->textures[BLANK],
             meshes));
 
     this->models.push_back(
@@ -336,6 +323,12 @@ void Game::initModels() {
 
     for (auto*& i : meshes)
         delete i;
+}
+
+void Game::initOBJModels()
+{
+    std::vector<Vertex> temp;
+    temp = loadOBJ("OBJFiles/fish.obj");
 }
 
 void Game::initLights() {

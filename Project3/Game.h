@@ -1,11 +1,12 @@
 #pragma once
 #include "libs.h"
 #include "Camera.h"
+#include "OBJLoader.h"
 
 
 // Enumerations
 enum shader_enum { SHADER_CORE_PROGRAM = 0 };
-enum texture_enum { TEX_CORAL0, TEX_CORAL_SPECULAR0, TEX_FISH1, TEX_FISH_SPECULAR1};
+enum texture_enum { TEX_CORAL0, TEX_CORAL_SPECULAR0, TEX_FISH1, TEX_FISH_SPECULAR1, BLANK};
 enum material_enum { MAT_1 = 0 };
 enum mesh_enum { MESH_QUAD = 0 };
 
@@ -80,8 +81,9 @@ private:
 	void initShaders();
 	void initTextures();
 	void initMaterials();
-	void initMeshes();
+	// void initMeshes();
 	void initModels();
+	void initOBJModels();
 	void initLights();
 	void initUniforms();
 
