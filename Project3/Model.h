@@ -92,10 +92,6 @@ public:
 		// Use program
 		shader->use();
 
-		
-
-
-
 		// Draw
 		for (auto& i : this->meshes) {
 			// Activate texture (binding)

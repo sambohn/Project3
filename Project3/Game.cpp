@@ -241,7 +241,11 @@ void Game::render() {
     this->updateUniforms();
 
    // Render models
-    this->models[0]->render(this->shaders[SHADER_CORE_PROGRAM]);
+
+    for (auto*& i : this->models)
+        i->render(this->shaders[SHADER_CORE_PROGRAM]);
+
+
     //this->models[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
     //this->models[2]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
@@ -287,6 +291,14 @@ void Game::initMaterials() {
 
 void Game::initModels() {
 
+    std::vector<Mesh*>meshes;
+    std::vector<Mesh*>meshes2;
+
+    meshes2.push_back(new Mesh(&Quad(), glm::vec3(0.f),
+        glm::vec3(0.f),
+        glm::vec3(-90.f, 0.f, 0.f),
+        glm::vec3(100.f)));
+
     // MODELS
     this->models.push_back(
         new Model(glm::vec3(0.f),
@@ -294,6 +306,19 @@ void Game::initModels() {
             this->textures[BLANK],
             this->textures[BLANK],
             "OBJFiles/sturgeon.obj"));
+
+    // MODELS
+    this->models.push_back(
+        new Model(glm::vec3(0.f),
+            this->materials[0],
+            this->textures[BLANK],
+            this->textures[BLANK],
+            meshes2));
+
+    for (auto*& i : meshes)
+        delete i;
+    for (auto*& i : meshes2)
+        delete i;
 
 }
 
