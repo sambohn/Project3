@@ -44,7 +44,6 @@ void Game::initGLEW() {
     }
 }
 
-
 void Game::initOpenGLOptions() {
     // OpenGL Options
     glEnable(GL_DEPTH_TEST); // enable use of Z & W coordinate
@@ -73,7 +72,6 @@ void Game::initMatrices() {
         this->nearPlane,
         this->farPlane); // Not resized until game loop. Send to shader
 }
-
 
 Game::Game(
     const char* title,
@@ -128,10 +126,6 @@ Game::Game(
 
 }
 
-
-
-
-
 Game::~Game() {
     glfwDestroyWindow(this->window);
     glfwTerminate();
@@ -148,7 +142,6 @@ Game::~Game() {
     for (size_t i = 0; i < this->lights.size(); i++)
         delete this->lights[i];
 }
-
 
 // Accessors
 int Game::getWindowShouldClose() {
@@ -182,7 +175,11 @@ void Game::updateMouseInput() {
     // Set last X and Y
     this->lastMouseX = this->mouseX;
     this->lastMouseY = this->mouseY;
-     
+
+    // Move light
+    if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+        *this->lights[0] = this->camera.getPosition();
+    }
 }
 
 void Game::updateKeyboardInput() {
@@ -327,6 +324,7 @@ void Game::updateUniforms() {
     this->ViewMatrix = this->camera.getViewMatrix();
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
     this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
+    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(*this->lights[0], "lightPos0");
 
     // get correct view plane every frame
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
