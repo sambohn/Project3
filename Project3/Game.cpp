@@ -290,45 +290,19 @@ void Game::initMaterials() {
 
 void Game::initModels() {
 
-    std::vector<Mesh*> meshes;
-    std::vector<Vertex> mesh = loadOBJ("OBJFiles/sturgeon.obj");
-    meshes.push_back(new Mesh(mesh.data(), mesh.size(), NULL, 0, glm::vec3(0.f, 0.f, -1.f),
-        glm::vec3(0.f),
-        glm::vec3(-90.f, 0.f, 90.f),
-        glm::vec3(0.4f)));
-
-
-
     // MODELS
     this->models.push_back(
         new Model(glm::vec3(0.f),
             this->materials[0],
             this->textures[BLANK],
             this->textures[BLANK],
-            meshes));
+            "OBJFiles/sturgeon.obj"));
 
-    this->models.push_back(
-        new Model(glm::vec3(2.f, 0.f, 0.f),
-            this->materials[0],
-            this->textures[TEX_FISH1],
-            this->textures[TEX_FISH_SPECULAR1],
-            meshes));
-
-    this->models.push_back(
-        new Model(glm::vec3(4.f, 0.f, 0.f),
-            this->materials[0],
-            this->textures[TEX_FISH_SPECULAR1],
-            this->textures[TEX_FISH_SPECULAR1],
-            meshes));
-
-    for (auto*& i : meshes)
-        delete i;
 }
 
 void Game::initOBJModels()
 {
-    std::vector<Vertex> temp;
-    temp = loadOBJ("OBJFiles/fish.obj");
+
 }
 
 void Game::initLights() {

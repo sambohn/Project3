@@ -43,7 +43,7 @@ static std::vector<Vertex> loadOBJ(const char* file_name) {
 
     // File open error check
     if (!in_file.is_open()) {
-        throw "ERROR::OBJLOADER::Could not open file.";
+        throw std::runtime_error("ERROR::OBJLOADER::Could not open file.");
     }
 
     // Read line by line
@@ -68,14 +68,36 @@ static std::vector<Vertex> loadOBJ(const char* file_name) {
             vertex_normals.push_back(temp_vec3);
         }
         else if (prefix == "f") { // Face
-            GLuint posIndex[3], texIndex[3], normIndex[3];
-            char slash; // To consume the '/' characters
+            std::vector<GLuint> posIndices, texIndices, normIndices;
+            std::string vertex;
+            while (ss >> vertex) {
+                std::stringstream vertexSS(vertex);
+                std::string indexStr;
+                int index[3] = { 0, 0, 0 };
+                int i = 0;
+                while (std::getline(vertexSS, indexStr, '/')) {
+                    if (!indexStr.empty()) {
+                        index[i] = std::stoi(indexStr);
+                    }
+                    ++i;
+                }
+                posIndices.push_back(index[0]);
+                texIndices.push_back(index[1]);
+                normIndices.push_back(index[2]);
+            }
+            // Triangulate if necessary
+            for (size_t i = 1; i < posIndices.size() - 1; ++i) {
+                vertex_position_indices.push_back(posIndices[0]);
+                vertex_position_indices.push_back(posIndices[i]);
+                vertex_position_indices.push_back(posIndices[i + 1]);
 
-            for (int i = 0; i < 3; i++) {
-                ss >> posIndex[i] >> slash >> texIndex[i] >> slash >> normIndex[i];
-                vertex_position_indices.push_back(posIndex[i]);
-                vertex_texcoord_indices.push_back(texIndex[i]);
-                vertex_normal_indices.push_back(normIndex[i]);
+                vertex_texcoord_indices.push_back(texIndices[0]);
+                vertex_texcoord_indices.push_back(texIndices[i]);
+                vertex_texcoord_indices.push_back(texIndices[i + 1]);
+
+                vertex_normal_indices.push_back(normIndices[0]);
+                vertex_normal_indices.push_back(normIndices[i]);
+                vertex_normal_indices.push_back(normIndices[i + 1]);
             }
         }
     }
