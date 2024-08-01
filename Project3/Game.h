@@ -69,7 +69,7 @@ private:
 	std::vector<Model*> models;
 
 	// Lights
-	std::vector<glm::vec3*> lights;
+	std::vector<PointLight*>pointLights;
 
 
 	// Private functions
@@ -84,6 +84,7 @@ private:
 	// void initMeshes();
 	void initModels();
 	void initOBJModels();
+	void initPointLights();
 	void initLights();
 	void initUniforms();
 

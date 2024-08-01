@@ -9,6 +9,23 @@ struct Material {
 	sampler2D specularTex;
 };
 
+struct Light {
+	vec3 direction;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+}
+
+struct PointLight {
+
+	vec3 position;
+	float intensity;
+	vec3 color;
+	float constant;
+	float linear;
+	float quadratic;
+};
+
 in vec3 vs_position;
 in vec3 vs_color;
 in vec2 vs_texcoord;
@@ -18,6 +35,7 @@ out vec4 fs_color;
 
 // Uniforms
 uniform Material material;
+uniform PointLight pointLight;
 uniform vec3 lightPos0;
 uniform vec3 cameraPos;
 
@@ -28,6 +46,7 @@ vec3 calculateAmbient(Material material) {
 }
 
 vec3 calculateDiffuse(Material material, vec3 vs_position, vec3 vs_normal, vec3 lightPos0) {
+
 	// Diffuse light
 	vec3 posToLightDirVec = normalize(lightPos0 - vs_position);
 	float diffuse = clamp(dot(posToLightDirVec, vs_normal), 0, 1);
@@ -35,6 +54,7 @@ vec3 calculateDiffuse(Material material, vec3 vs_position, vec3 vs_normal, vec3 
 }
 
 vec3 calculateSpecular(Material material, vec3 vs_position, vec3 vs_normal, vec3 lightPos0, vec3 cameraPos) {
+
 	// Specular light
 	vec3 lightToPosDirVec = normalize(vs_position - lightPos0);
 	vec3 reflectDirVec = normalize(reflect(lightToPosDirVec, normalize(vs_normal)));
@@ -52,18 +72,26 @@ void main() {
 	vec3 ambientFinal = calculateAmbient(material);
 
 	// Diffuse light
-	vec3 diffuseFinal = calculateDiffuse(material, vs_position, vs_normal, lightPos0);
+	vec3 diffuseFinal = calculateDiffuse(material, vs_position, vs_normal, pointLight.position);
 
 	// Specular light
-	vec3 specularFinal = calculateSpecular(material, vs_position, vs_normal, lightPos0, cameraPos);
+	vec3 specularFinal = calculateSpecular(material, vs_position, vs_normal, pointLight.position, cameraPos);
 
 	// Attenuation
+	float distance = length(pointLight.position - vs_position);
+	// Constant, linear, quadratic
+	float attenuation = pointLight.constant / (1.f + pointLight.linear * distance + pointLight.quadratic * (distance * distance));
+
+	// Final light
+	ambientFinal *= attenuation;
+	diffuseFinal *= attenuation;
+	specularFinal *= attenuation;
+
 
 	// vec4(vs_color, 1.f)
 
 	fs_color =
 	 texture(material.specularTex, vs_texcoord)
 	* (vec4(ambientFinal, 1.f) + vec4(diffuseFinal, 1.f) + vec4(specularFinal, 1.f));
-
 
 }

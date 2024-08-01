@@ -139,8 +139,8 @@ Game::~Game() {
         delete this->materials[i];
     for (size_t i = 0; i < this->models.size(); i++)
         delete this->models[i];
-    for (size_t i = 0; i < this->lights.size(); i++)
-        delete this->lights[i];
+    for (size_t i = 0; i < this->pointLights.size(); i++)
+        delete this->pointLights[i];
 }
 
 // Accessors
@@ -178,7 +178,7 @@ void Game::updateMouseInput() {
 
     // Move light
     if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-        *this->lights[0] = this->camera.getPosition();
+        this->pointLights[0]->setPosition(this->camera.getPosition());
     }
 }
 
@@ -242,12 +242,9 @@ void Game::render() {
 
    // Render models
 
+
     for (auto*& i : this->models)
         i->render(this->shaders[SHADER_CORE_PROGRAM]);
-
-
-    //this->models[1]->render(this->shaders[SHADER_CORE_PROGRAM]);
-    //this->models[2]->render(this->shaders[SHADER_CORE_PROGRAM]);
 
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
@@ -284,7 +281,7 @@ void Game::initTextures() {
 
 void Game::initMaterials() {
 
-    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(2.f),
+    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f),
         1,
         0));
 }
@@ -292,12 +289,12 @@ void Game::initMaterials() {
 void Game::initModels() {
 
     std::vector<Mesh*>meshes;
-    std::vector<Mesh*>meshes2;
 
-    meshes2.push_back(new Mesh(&Quad(), glm::vec3(0.f),
-        glm::vec3(0.f),
+    meshes.push_back(new Mesh(new Quad(), glm::vec3(0.f),
         glm::vec3(-90.f, 0.f, 0.f),
+        glm::vec3(0.f, 0.f, 0.f),
         glm::vec3(100.f)));
+
 
     // MODELS
     this->models.push_back(
@@ -307,17 +304,17 @@ void Game::initModels() {
             this->textures[BLANK],
             "OBJFiles/sturgeon.obj"));
 
+    this->models[0]->rotate(glm::vec3( - 90.f, 0.f, 90.f));
+
     // MODELS
     this->models.push_back(
         new Model(glm::vec3(0.f),
             this->materials[0],
             this->textures[BLANK],
             this->textures[BLANK],
-            meshes2));
+            meshes));
 
     for (auto*& i : meshes)
-        delete i;
-    for (auto*& i : meshes2)
         delete i;
 
 }
@@ -327,8 +324,13 @@ void Game::initOBJModels()
 
 }
 
+void Game::initPointLights() {
+    this->pointLights.push_back(new PointLight(glm::vec3(0.f)));
+}
+
 void Game::initLights() {
-    this->lights.push_back(new glm::vec3(0.f, 0.f, 1.f));
+    this->initPointLights();
+
 }
 
 void Game::initUniforms() {
@@ -339,8 +341,8 @@ void Game::initUniforms() {
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
     // Send light pos -> fragment shader
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(*this->lights[0], "lightPos0");
-
+    for (auto*& pl : this->pointLights)
+        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
 }
 
 void Game::updateUniforms() {
@@ -349,7 +351,10 @@ void Game::updateUniforms() {
     this->ViewMatrix = this->camera.getViewMatrix();
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
     this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(*this->lights[0], "lightPos0");
+
+
+    for (auto*& pl : this->pointLights)
+        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
 
     // get correct view plane every frame
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
