@@ -18,6 +18,15 @@ public:
 
 	}
 
+	// Setters
+	void setColor(glm::vec3 color) {
+		this->color = color;
+	}
+
+	void setIntensity(float intensity) {
+		this->intensity = intensity;
+	}
+
 	// Function
 	virtual void sendToShader(Shader& program) = 0;
 
@@ -64,4 +73,40 @@ public:
 	}
 
 
+};
+
+class DirectionalLight : public Light {
+protected:
+	glm::vec3 direction;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+public:
+	DirectionalLight(glm::vec3 direction, float intensity = 1.f, glm::vec3 color = glm::vec3(1.f),
+		glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f),
+		glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f))
+		: Light(intensity, color) {
+		this->direction = direction;
+		this->intensity = intensity;
+		this->color = color;
+		this->ambient = ambient;
+		this->diffuse = diffuse;
+		this->specular = specular;
+	}
+
+	~DirectionalLight() {}
+
+	// Setters
+	void setDirection(glm::vec3 direction) {
+		this->direction = direction;
+	}
+
+	void sendToShader(Shader& program) {
+		program.setVec3f(this->direction, "directionalLight.direction");
+		program.setVec3f(this->ambient, "directionalLight.ambient");
+		program.setVec3f(this->diffuse, "directionalLight.diffuse");
+		program.setVec3f(this->specular, "directionalLight.specular");
+	}
 };

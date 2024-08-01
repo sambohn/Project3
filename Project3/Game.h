@@ -70,6 +70,7 @@ private:
 
 	// Lights
 	std::vector<PointLight*>pointLights;
+	std::vector<DirectionalLight*>directionalLights;
 
 
 	// Private functions
@@ -85,6 +86,7 @@ private:
 	void initModels();
 	void initOBJModels();
 	void initPointLights();
+	void initDirectionalLights();
 	void initLights();
 	void initUniforms();
 

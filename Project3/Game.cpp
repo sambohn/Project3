@@ -325,12 +325,16 @@ void Game::initOBJModels()
 }
 
 void Game::initPointLights() {
-    this->pointLights.push_back(new PointLight(glm::vec3(0.f)));
+    this->pointLights.push_back(new PointLight(glm::vec3(0.f), 1.f, glm::vec3(0.984f, 0.f, 1.f)));
+}
+
+void Game::initDirectionalLights() {
+    this->directionalLights.push_back(new DirectionalLight(glm::vec3(-0.2f, -1.0f, -0.3f), 1.f, glm::vec3(1.f, 1.f, 1.f)));
 }
 
 void Game::initLights() {
     this->initPointLights();
-
+    this->initDirectionalLights();
 }
 
 void Game::initUniforms() {
@@ -343,6 +347,8 @@ void Game::initUniforms() {
     // Send light pos -> fragment shader
     for (auto*& pl : this->pointLights)
         pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+    for (auto*& dl : this->directionalLights)
+        dl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
 }
 
 void Game::updateUniforms() {
