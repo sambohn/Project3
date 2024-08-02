@@ -74,6 +74,9 @@ public:
 		return this->ViewMatrix;
 	}
 
+	const glm::vec3 getFront() {
+		return this->front;
+	}
 
 	const glm::vec3 getPosition() {
 		return this->position;

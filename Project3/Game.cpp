@@ -176,9 +176,14 @@ void Game::updateMouseInput() {
     this->lastMouseX = this->mouseX;
     this->lastMouseY = this->mouseY;
 
+    // Update the spotlight to follow the camera
+    this->spotLights[0]->setPosition(this->camera.getPosition());
+    this->spotLights[0]->setDirection(this->camera.getFront());
+
     // Move light
     if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
         this->pointLights[0]->setPosition(this->camera.getPosition());
+        this->spotLights[0]->setPosition(this->camera.getPosition());
     }
 }
 
@@ -223,6 +228,7 @@ void Game::update() {
     // Update input
     this->updateDt();
     this->updateInput();
+    
 
     
 }
@@ -245,6 +251,8 @@ void Game::render() {
 
     for (auto*& i : this->models)
         i->render(this->shaders[SHADER_CORE_PROGRAM]);
+
+    
 
     // End Draw
     glfwSwapBuffers(this->window); // Swap back & front buffer
@@ -324,15 +332,39 @@ void Game::initOBJModels()
 
 }
 
+void Game::initSpotLights() {
+    this->spotLights.push_back(// Initialize a spot light
+        new SpotLight(glm::vec3(0.0f, 2.0f, 2.0f), // Position
+            glm::vec3(-0.5f, -0.5f, -0.5f), // Direction
+            1.0f, // Intensity
+            glm::vec3(1.0f), // Color
+            12.5f, // CutOff
+            glm::vec3(0.1f, 0.1f, 0.1f), // Ambient
+            glm::vec3(0.8f, 0.8f, 0.8f), // Diffuse
+            glm::vec3(1.0f, 1.0f, 1.0f), // Specular
+            1.0f, // Constant
+            0.09f, // Linear
+            0.032f)); // Quadratic
+}
+
 void Game::initPointLights() {
     this->pointLights.push_back(new PointLight(glm::vec3(0.f), 1.f, glm::vec3(0.984f, 0.f, 1.f)));
 }
 
 void Game::initDirectionalLights() {
-    this->directionalLights.push_back(new DirectionalLight(glm::vec3(-0.2f, -1.0f, -0.3f), 1.f, glm::vec3(1.f, 1.f, 1.f)));
+    this->directionalLights.push_back(new DirectionalLight(
+        glm::vec3(-0.2f, -1.0f, -0.3f), // Direction
+        1.0f,                           // Intensity
+        glm::vec3(1.0f, 1.0f, 1.0f),    // Color
+        glm::vec3(0.1f, 0.1f, 0.1f),    // Ambient
+        glm::vec3(0.8f, 0.8f, 0.8f),    // Diffuse
+        glm::vec3(1.0f, 1.0f, 1.0f)     // Specular
+    ));
 }
 
+
 void Game::initLights() {
+    this->initSpotLights();
     this->initPointLights();
     this->initDirectionalLights();
 }
@@ -345,6 +377,8 @@ void Game::initUniforms() {
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 
     // Send light pos -> fragment shader
+    for (auto*& sl : this->spotLights)
+        sl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
     for (auto*& pl : this->pointLights)
         pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
     for (auto*& dl : this->directionalLights)
@@ -352,19 +386,13 @@ void Game::initUniforms() {
 }
 
 void Game::updateUniforms() {
-
     // Update view matrix (camera)
     this->ViewMatrix = this->camera.getViewMatrix();
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
     this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
 
-
-    for (auto*& pl : this->pointLights)
-        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-
-    // get correct view plane every frame
+    // Update projection matrix
     glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
-
     this->ProjectionMatrix = glm::mat4(1.f);
     this->ProjectionMatrix = glm::perspective(
         glm::radians(fov),
@@ -373,7 +401,20 @@ void Game::updateUniforms() {
         this->farPlane);
     this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ProjectionMatrix, "ProjectionMatrix");
 
-    // Use a program
-    this->shaders[SHADER_CORE_PROGRAM]->use(); // tell what shaders to use
+    // Update and send lights to shader
+    for (auto*& pl : this->pointLights)
+        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+
+    for (auto*& sl : this->spotLights) {
+        sl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+    }
+
+    for (auto*& dl : this->directionalLights) {
+        dl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
+    }
+
+    // Use the program
+    this->shaders[SHADER_CORE_PROGRAM]->use();
 }
+
 

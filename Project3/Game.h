@@ -69,6 +69,7 @@ private:
 	std::vector<Model*> models;
 
 	// Lights
+	std::vector<SpotLight*>spotLights;
 	std::vector<PointLight*>pointLights;
 	std::vector<DirectionalLight*>directionalLights;
 
@@ -85,6 +86,7 @@ private:
 	// void initMeshes();
 	void initModels();
 	void initOBJModels();
+	void initSpotLights();
 	void initPointLights();
 	void initDirectionalLights();
 	void initLights();
