@@ -65,7 +65,14 @@ public:
         glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f),
         glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f),
         glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f))
-        : Light(intensity, color), direction(direction), ambient(ambient), diffuse(diffuse), specular(specular) {}
+        : Light(intensity, color) {
+
+
+        this->direction = direction;
+        this->ambient = ambient;
+        this->diffuse = diffuse;
+        this->specular = specular;
+    }
 
     ~DirectionalLight() {}
 
@@ -89,6 +96,7 @@ protected:
     glm::vec3 position;
     glm::vec3 direction;
     float cutOff;
+    float outerCutOff;
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
@@ -98,13 +106,26 @@ protected:
 
 public:
     SpotLight(glm::vec3 position, glm::vec3 direction, float intensity = 1.f, glm::vec3 color = glm::vec3(1.f),
-        float cutOff = 12.5f,
+        float cutOff = 12.5f, float outerCutOff = 17.5f,
         glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f),
         glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f),
         glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f),
         float constant = 1.f, float linear = 0.09f, float quadratic = 0.032f)
-        : Light(intensity, color), position(position), direction(direction), cutOff(glm::cos(glm::radians(cutOff))),
-        ambient(ambient), diffuse(diffuse), specular(specular), constant(constant), linear(linear), quadratic(quadratic) {}
+        : Light(intensity, color) {
+
+        this->position = position;
+        this->direction = direction;
+        this->cutOff = cos(glm::radians(cutOff));
+        this->outerCutOff = cos(glm::radians(outerCutOff));
+
+        this->ambient = ambient;
+        this->diffuse = diffuse;
+        this->specular = specular;
+
+        this->constant = constant;
+        this->linear = linear;
+        this->quadratic = quadratic;
+    }
 
     ~SpotLight() {}
 
@@ -128,6 +149,7 @@ public:
         program.set1f(this->intensity, "spotLight.intensity");
         program.setVec3f(this->color, "spotLight.color");
         program.set1f(this->cutOff, "spotLight.cutOff");
+        program.set1f(this->cutOff, "spotLight.outerCutOff");
         program.setVec3f(this->ambient, "spotLight.ambient");
         program.setVec3f(this->diffuse, "spotLight.diffuse");
         program.setVec3f(this->specular, "spotLight.specular");

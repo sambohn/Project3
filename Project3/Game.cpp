@@ -339,6 +339,7 @@ void Game::initSpotLights() {
             1.0f, // Intensity
             glm::vec3(1.0f), // Color
             12.5f, // CutOff
+            17.5f, // OuterCutOff
             glm::vec3(0.1f, 0.1f, 0.1f), // Ambient
             glm::vec3(0.8f, 0.8f, 0.8f), // Diffuse
             glm::vec3(1.0f, 1.0f, 1.0f), // Specular
