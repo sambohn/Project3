@@ -106,6 +106,11 @@ public:
         glDeleteProgram(this->id);
     }
 
+
+    GLuint getID() const {
+        return this->id;
+    }
+
     // Set uniform functions
     void use() {
         glUseProgram(this->id);

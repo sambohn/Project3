@@ -53,7 +53,7 @@ void Game::initOpenGLOptions() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // fill shape with color [DEFAULT:FILL]
     glEnable(GL_BLEND); // blend colors
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Ensure correct alignment
     // Input
     glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -123,6 +123,8 @@ Game::Game(
     this->initLights(); // Lights before uniforms
     this->initUniforms();
 
+    this->textRenderer = new Text("Fonts/froufrou.ttf", 24);
+
 
 }
 
@@ -183,7 +185,6 @@ void Game::updateMouseInput() {
     // Move light
     if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
         this->pointLights[0]->setPosition(this->camera.getPosition());
-        this->spotLights[0]->setPosition(this->camera.getPosition());
     }
 }
 
@@ -229,7 +230,7 @@ void Game::update() {
     this->updateDt();
     this->updateInput();
     
-
+    
     
 }
 
@@ -252,6 +253,7 @@ void Game::render() {
     for (auto*& i : this->models)
         i->render(this->shaders[SHADER_CORE_PROGRAM]);
 
+    renderElapsedTime();
     
 
     // End Draw
@@ -363,7 +365,6 @@ void Game::initDirectionalLights() {
     ));
 }
 
-
 void Game::initLights() {
     this->initSpotLights();
     this->initPointLights();
@@ -418,4 +419,18 @@ void Game::updateUniforms() {
     this->shaders[SHADER_CORE_PROGRAM]->use();
 }
 
+void Game::renderElapsedTime() {
+    // Get the elapsed time as a string
+    std::stringstream ss;
+    ss << "Time: " << std::fixed << this->curTime << "s";
+    std::string elapsedTimeStr = ss.str();
 
+    // Define position, scale, and color
+    float x = this->WINDOW_WIDTH - 200.0f; // Adjust the X position to fit your window
+    float y = this->WINDOW_HEIGHT - 50.0f; // Adjust the Y position to fit your window
+    float scale = 1.0f;
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); // White color
+
+    // Render the text
+    this->textRenderer->renderText(*this->shaders[SHADER_CORE_PROGRAM], elapsedTimeStr, x, y, scale, color);
+}

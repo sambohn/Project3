@@ -1,6 +1,7 @@
 #pragma once
 #include "libs.h"
 #include "Camera.h"
+#include "Text.h"
 #include "OBJLoader.h"
 
 
@@ -21,6 +22,8 @@ private:
 	const int WINDOW_HEIGHT;
 	int framebufferWidth;
 	int framebufferHeight;
+
+	Text* textRenderer;
 
 	// OpenGL Context
 	const int GL_VERSION_MAJOR;
@@ -120,7 +123,7 @@ public:
 
 	// Static functions
 	static void framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH);
-
+	void renderElapsedTime();
 
 
 };
