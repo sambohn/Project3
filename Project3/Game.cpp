@@ -121,7 +121,9 @@ Game::Game(
     this->initOBJModels();
     this->initModels();
     this->initLights(); // Lights before uniforms
+    this->initText();
     this->initUniforms();
+
 
     this->textRenderer = new Text("Fonts/froufrou.ttf", 24);
 
@@ -275,6 +277,7 @@ void Game::framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
 
 void Game::initShaders() {
     this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR, "vertex_core.glsl", "fragment_core.glsl"));
+    this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR, "gui_vertex.glsl", "gui_fragment.glsl"));
 }
 
 void Game::initTextures() {
@@ -387,6 +390,10 @@ void Game::initUniforms() {
         dl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
 }
 
+void Game::initText() {
+    this->textRenderer = new Text("Fonts/froufrou.ttf", 48.f);
+}
+
 void Game::updateUniforms() {
     // Update view matrix (camera)
     this->ViewMatrix = this->camera.getViewMatrix();
@@ -420,6 +427,8 @@ void Game::updateUniforms() {
 }
 
 void Game::renderElapsedTime() {
+
+
     // Get the elapsed time as a string
     std::stringstream ss;
     ss << "Time: " << std::fixed << this->curTime << "s";
@@ -432,5 +441,7 @@ void Game::renderElapsedTime() {
     glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); // White color
 
     // Render the text
-    this->textRenderer->RenderText(*this->shaders[SHADER_CORE_PROGRAM], elapsedTimeStr, x, y, scale, color);
+    this->textRenderer->RenderText(*this->shaders[GUI_SHADER], elapsedTimeStr, x, y, scale, color);
+    // go back to core shader
+
 }

@@ -41,9 +41,6 @@ struct SpotLight {
     float quadratic;
 };
 
-in vec2 TextCoords; // Text
-
-
 in vec3 vs_position;
 in vec3 vs_color;
 in vec2 vs_texcoord;
@@ -51,17 +48,12 @@ in vec3 vs_normal;
 
 out vec4 fs_color;
 
-out vec4 Text_color; // Text
-
 // Uniforms
 uniform Material material;
 uniform PointLight pointLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
 uniform vec3 cameraPos;
-
-uniform sampler2D text;
-uniform vec3 textColor;
 
 // Functions
 vec3 calculateAmbient(Material material) {
@@ -81,7 +73,6 @@ vec3 calculateSpecular(Material material, vec3 vs_position, vec3 vs_normal, vec3
 }
 
 void main() {
-
     // Directional Light Calculations
     vec3 dirLightDir = normalize(-directionalLight.direction); // light direction is opposite to the light's direction vector
     vec3 dirAmbient = directionalLight.ambient * material.ambient;
@@ -135,8 +126,4 @@ void main() {
     vec3 specular = pointSpecular + dirSpecular + spotSpecular;
 
     fs_color = texture(material.diffuseTex, vs_texcoord) * vec4(ambient + diffuse + specular, 1.0);
-
-    // Text rendering
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TextCoords).r);
-    Text_color = vec4(textColor, 1.0) * sampled;
 }

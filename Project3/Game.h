@@ -6,7 +6,7 @@
 
 
 // Enumerations
-enum shader_enum { SHADER_CORE_PROGRAM = 0 };
+enum shader_enum { SHADER_CORE_PROGRAM = 0 , GUI_SHADER};
 enum texture_enum { TEX_CORAL0, TEX_CORAL_SPECULAR0, TEX_FISH1, TEX_FISH_SPECULAR1, BLANK};
 enum material_enum { MAT_1 = 0 };
 enum mesh_enum { MESH_QUAD = 0 };
@@ -94,6 +94,7 @@ private:
 	void initDirectionalLights();
 	void initLights();
 	void initUniforms();
+	void initText();
 
 	void updateUniforms();
 
