@@ -76,12 +76,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Linking\FREETYPE\include;$(SolutionDir)\Linking\GLM\include;$(SolutionDir)\Linking\GLEW\include;$(SolutionDir)\Linking\SOIL2\include;$(SolutionDir)\Linking\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Linking\FT\include;$(SolutionDir)Linking\GLM\include;$(SolutionDir)Linking\GLEW\include;$(SolutionDir)Linking\SOIL2\include;$(SolutionDir)Linking\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\Linking\FREETYPE\lib;$(SolutionDir)\Linking\GLEW\lib;$(SolutionDir)\Linking\SOIL2\lib;$(SolutionDir)\Linking\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Linking\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;soil2-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -93,14 +94,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Linking\FREETYPE\include;$(SolutionDir)\Linking\GLM\include;$(SolutionDir)\Linking\GLEW\include;$(SolutionDir)\Linking\SOIL2\include;$(SolutionDir)\Linking\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Linking\FT\include;$(SolutionDir)Linking\GLM\include;$(SolutionDir)Linking\GLEW\include;$(SolutionDir)Linking\SOIL2\include;$(SolutionDir)Linking\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\Linking\FREETYPE\lib;$(SolutionDir)\Linking\GLEW\lib;$(SolutionDir)\Linking\SOIL2\lib;$(SolutionDir)\Linking\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Linking\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;freetype.lib;soil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

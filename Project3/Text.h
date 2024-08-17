@@ -115,12 +115,11 @@ public:
 		glDeleteBuffers(1, &VBO);
 	}
 
-	void renderText(Shader& s, std::string text, float x, float y, float scale, glm::vec3 color)
+	void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color)
 	{
-		// activate corresponding render state    
-		s.use();
-		glUniform3f(glGetUniformLocation(s.getID(), "textColor"), color.x, color.y, color.z);
-		glUniform1i(glGetUniformLocation(s.getID(), "isTextRendering"), 1); // Set the text rendering flag
+		// activate corresponding render state	
+		shader.use();
+		glUniform3f(glGetUniformLocation(shader.getID(), "textColor"), color.x, color.y, color.z);
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(VAO);
 
@@ -140,6 +139,7 @@ public:
 				{ xpos,     ypos + h,   0.0f, 0.0f },
 				{ xpos,     ypos,       0.0f, 1.0f },
 				{ xpos + w, ypos,       1.0f, 1.0f },
+
 				{ xpos,     ypos + h,   0.0f, 0.0f },
 				{ xpos + w, ypos,       1.0f, 1.0f },
 				{ xpos + w, ypos + h,   1.0f, 0.0f }
@@ -148,18 +148,17 @@ public:
 			glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 			// update content of VBO memory
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			// render quad
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-			x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+			x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 		}
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glUniform1i(glGetUniformLocation(s.getID(), "isTextRendering"), 0); // Reset the text rendering flag
 	}
-
 
 };
 

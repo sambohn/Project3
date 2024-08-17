@@ -432,5 +432,5 @@ void Game::renderElapsedTime() {
     glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); // White color
 
     // Render the text
-    this->textRenderer->renderText(*this->shaders[SHADER_CORE_PROGRAM], elapsedTimeStr, x, y, scale, color);
+    this->textRenderer->RenderText(*this->shaders[SHADER_CORE_PROGRAM], elapsedTimeStr, x, y, scale, color);
 }
