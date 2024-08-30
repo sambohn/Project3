@@ -1,16 +1,10 @@
 #include "Game.h"
 
-
-
-
 void Game::initGLFW() {
-
-
     if (glfwInit() == GLFW_FALSE) {
         std::cout << "ERROR::GLFW_INIT_FAILED" << "\n";
         glfwTerminate();
     }
-
 }
 
 void Game::initWindow(const char* title, bool resizable) {
@@ -18,8 +12,7 @@ void Game::initWindow(const char* title, bool resizable) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, this->GL_VERSION_MAJOR);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, this->GL_VERSION_MINOR);
-    glfwWindowHint(GLFW_RESIZABLE, resizable); // resisable
-    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // MAC OS
+    glfwWindowHint(GLFW_RESIZABLE, resizable); // resizable
 
     this->window = glfwCreateWindow(this->WINDOW_WIDTH, this->WINDOW_HEIGHT, title, NULL, NULL);
 
@@ -39,7 +32,7 @@ void Game::initGLEW() {
     glewExperimental = GL_TRUE; // Enable modern OpenGL functionality
 
     if (glewInit() != GLEW_OK) {
-        std::cout << "ERROR::MAIN.CPP::GLEW_INIT_FAILED" << "\n";
+        std::cout << "ERROR::GLEW_INIT_FAILED" << "\n";
         glfwTerminate();
     }
 }
@@ -47,7 +40,7 @@ void Game::initGLEW() {
 void Game::initOpenGLOptions() {
     // OpenGL Options
     glEnable(GL_DEPTH_TEST); // enable use of Z & W coordinate
-    glEnable(GL_CULL_FACE); // don't draw whats not shown
+    glEnable(GL_CULL_FACE); // don't draw what's not shown
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW); // draw vertices counter clockwise
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // fill shape with color [DEFAULT:FILL]
@@ -56,16 +49,13 @@ void Game::initOpenGLOptions() {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Ensure correct alignment
     // Input
     glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 }
 
 void Game::initMatrices() {
     // Create view matrix
-    // CAMERA [STATIC VECTOR & POS]
     this->ViewMatrix = glm::lookAt(this->camPosition, this->camPosition + this->camFront, this->worldUp);
 
     // Create projection matrix
-
     this->ProjectionMatrix = glm::perspective(
         glm::radians(fov),
         static_cast<float>(this->framebufferWidth) / this->framebufferHeight,
@@ -86,13 +76,12 @@ Game::Game(
     this->framebufferWidth = WINDOW_WIDTH;
 
     // Create view matrix
-    // CAMERA [STATIC VECTOR & POS]
     this->camFront = glm::vec3(0.f, 0.f, -1.f); // Forward
     this->ViewMatrix = camera.getViewMatrix();
 
     // Create projection matrix
     this->fov = 90.f;
-    this->nearPlane = 0.1f; // Not 0. Want slightly behind cam to avoid clipping
+    this->nearPlane = 0.1f;
     this->farPlane = 1000.f;
     this->ProjectionMatrix = glm::mat4(1.f);
 
@@ -100,7 +89,6 @@ Game::Game(
     this->dt = 0.f;
     this->curTime = 0.f;
     this->lastTime = 0.f;
-    
 
     this->lastMouseX = 0.0;
     this->lastMouseY = 0.0;
@@ -123,11 +111,6 @@ Game::Game(
     this->initLights(); // Lights before uniforms
     this->initText();
     this->initUniforms();
-
-
-    this->textRenderer = new Text("Fonts/froufrou.ttf", 24);
-
-
 }
 
 Game::~Game() {
@@ -145,6 +128,7 @@ Game::~Game() {
         delete this->models[i];
     for (size_t i = 0; i < this->pointLights.size(); i++)
         delete this->pointLights[i];
+    delete this->textRenderer;
 }
 
 // Accessors
@@ -181,17 +165,18 @@ void Game::updateMouseInput() {
     this->lastMouseY = this->mouseY;
 
     // Update the spotlight to follow the camera
-    this->spotLights[0]->setPosition(this->camera.getPosition());
-    this->spotLights[0]->setDirection(this->camera.getFront());
+    if (!this->spotLights.empty()) {
+        this->spotLights[0]->setPosition(this->camera.getPosition());
+        this->spotLights[0]->setDirection(this->camera.getFront());
+    }
 
     // Move light
-    if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+    if (glfwGetMouseButton(this->window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && !this->pointLights.empty()) {
         this->pointLights[0]->setPosition(this->camera.getPosition());
     }
 }
 
 void Game::updateKeyboardInput() {
-
     // Close window on [ESC] pressed
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(this->window, GLFW_TRUE);
@@ -211,10 +196,11 @@ void Game::updateKeyboardInput() {
         this->camera.move(this->dt, RIGHT);
     }
     if (glfwGetKey(this->window, GLFW_KEY_X) == GLFW_PRESS) {
-        
+        // Future action for 'X' key
     }
     if (glfwGetKey(this->window, GLFW_KEY_Z) == GLFW_PRESS) {
-        
+        // Render text
+        renderElapsedTime();
     }
 }
 
@@ -227,221 +213,86 @@ void Game::updateInput() {
 
 // Functions
 void Game::update() {
-
     // Update input
     this->updateDt();
     this->updateInput();
-    
-    
-    
 }
 
 void Game::render() {
-
     // Game Update ---
 
-
     // DRAW ---
-
-    // Clear all buffers
-    glClearColor(0.f, 0.f, 0.f, 1.f); // Black
+    glClearColor(0.f, 0.f, 0.f, 1.f); // Clear with black color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    this->updateUniforms();
+    this->updateUniforms();  // Update uniforms for 3D shaders
 
-   // Render models
+    // Render 3D models
+    for (auto& model : this->models) {
+        model->render(this->shaders[SHADER_CORE_PROGRAM]);
+    }
 
-
-    for (auto*& i : this->models)
-        i->render(this->shaders[SHADER_CORE_PROGRAM]);
-
+    // Render elapsed time as text
     renderElapsedTime();
-    
 
-    // End Draw
-    glfwSwapBuffers(this->window); // Swap back & front buffer
+    // Swap buffers and poll IO events
+    glfwSwapBuffers(window);
     glFlush();
-
-    // unbinding [RESET]
-    glBindVertexArray(0);
-    glUseProgram(0);
-    glActiveTexture(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-}
-
-// Callback function for resizable window
-void Game::framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
-    glViewport(0, 0, fbW, fbH);
-}
-
-void Game::initShaders() {
-    this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR, "vertex_core.glsl", "fragment_core.glsl"));
-    this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR, "gui_vertex.glsl", "gui_fragment.glsl"));
-}
-
-void Game::initTextures() {
-    // TEXTURE0 INIT
-    this->textures.push_back(new Texture("Images/coral.png", GL_TEXTURE_2D));
-    this->textures.push_back(new Texture("Images/coral_specular.png", GL_TEXTURE_2D));
-
-    // TEXTURE1 INIT
-    this->textures.push_back(new Texture("Images/yoyo.png", GL_TEXTURE_2D));
-    this->textures.push_back(new Texture("Images/yoyo_specular.png", GL_TEXTURE_2D));
-
-    this->textures.push_back(new Texture("Images/blank.png", GL_TEXTURE_2D));
-}
-
-void Game::initMaterials() {
-
-    this->materials.push_back(new Material(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f),
-        1,
-        0));
-}
-
-void Game::initModels() {
-
-    std::vector<Mesh*>meshes;
-
-    meshes.push_back(new Mesh(new Quad(), glm::vec3(0.f),
-        glm::vec3(-90.f, 0.f, 0.f),
-        glm::vec3(0.f, 0.f, 0.f),
-        glm::vec3(100.f)));
-
-
-    // MODELS
-    this->models.push_back(
-        new Model(glm::vec3(0.f),
-            this->materials[0],
-            this->textures[BLANK],
-            this->textures[BLANK],
-            "OBJFiles/sturgeon.obj"));
-
-    this->models[0]->rotate(glm::vec3( - 90.f, 0.f, 90.f));
-
-    // MODELS
-    this->models.push_back(
-        new Model(glm::vec3(0.f),
-            this->materials[0],
-            this->textures[BLANK],
-            this->textures[BLANK],
-            meshes));
-
-    for (auto*& i : meshes)
-        delete i;
-
-}
-
-void Game::initOBJModels()
-{
-
-}
-
-void Game::initSpotLights() {
-    this->spotLights.push_back(// Initialize a spot light
-        new SpotLight(glm::vec3(0.0f, 2.0f, 2.0f), // Position
-            glm::vec3(-0.5f, -0.5f, -0.5f), // Direction
-            1.0f, // Intensity
-            glm::vec3(1.0f), // Color
-            12.5f, // CutOff
-            17.5f, // OuterCutOff
-            glm::vec3(0.1f, 0.1f, 0.1f), // Ambient
-            glm::vec3(0.8f, 0.8f, 0.8f), // Diffuse
-            glm::vec3(1.0f, 1.0f, 1.0f), // Specular
-            1.0f, // Constant
-            0.09f, // Linear
-            0.032f)); // Quadratic
-}
-
-void Game::initPointLights() {
-    this->pointLights.push_back(new PointLight(glm::vec3(0.f), 1.f, glm::vec3(0.984f, 0.f, 1.f)));
-}
-
-void Game::initDirectionalLights() {
-    this->directionalLights.push_back(new DirectionalLight(
-        glm::vec3(-0.2f, -1.0f, -0.3f), // Direction
-        1.0f,                           // Intensity
-        glm::vec3(1.0f, 1.0f, 1.0f),    // Color
-        glm::vec3(0.1f, 0.1f, 0.1f),    // Ambient
-        glm::vec3(0.8f, 0.8f, 0.8f),    // Diffuse
-        glm::vec3(1.0f, 1.0f, 1.0f)     // Specular
-    ));
-}
-
-void Game::initLights() {
-    this->initSpotLights();
-    this->initPointLights();
-    this->initDirectionalLights();
-}
-
-void Game::initUniforms() {
-    // Init Uniforms
-
-    // send to shader [ Init uniforms ]
-    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ViewMatrix, "ViewMatrix");
-    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
-
-    // Send light pos -> fragment shader
-    for (auto*& sl : this->spotLights)
-        sl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-    for (auto*& pl : this->pointLights)
-        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-    for (auto*& dl : this->directionalLights)
-        dl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-}
-
-void Game::initText() {
-    this->textRenderer = new Text("Fonts/froufrou.ttf", 48.f);
-}
-
-void Game::updateUniforms() {
-    // Update view matrix (camera)
-    this->ViewMatrix = this->camera.getViewMatrix();
-    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ViewMatrix, "ViewMatrix");
-    this->shaders[SHADER_CORE_PROGRAM]->setVec3f(this->camera.getPosition(), "cameraPos");
-
-    // Update projection matrix
-    glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
-    this->ProjectionMatrix = glm::mat4(1.f);
-    this->ProjectionMatrix = glm::perspective(
-        glm::radians(fov),
-        static_cast<float>(this->framebufferWidth) / this->framebufferHeight,
-        this->nearPlane,
-        this->farPlane);
-    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(this->ProjectionMatrix, "ProjectionMatrix");
-
-    // Update and send lights to shader
-    for (auto*& pl : this->pointLights)
-        pl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-
-    for (auto*& sl : this->spotLights) {
-        sl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-    }
-
-    for (auto*& dl : this->directionalLights) {
-        dl->sendToShader(*this->shaders[SHADER_CORE_PROGRAM]);
-    }
-
-    // Use the program
-    this->shaders[SHADER_CORE_PROGRAM]->use();
 }
 
 void Game::renderElapsedTime() {
-
-
-    // Get the elapsed time as a string
+    // Generate time string
     std::stringstream ss;
-    ss << "Time: " << std::fixed << this->curTime << "s";
-    std::string elapsedTimeStr = ss.str();
+    ss << "Elapsed Time: " << static_cast<int>(glfwGetTime()) << "s";
+    std::string timeString = ss.str();
 
-    // Define position, scale, and color
-    float x = this->WINDOW_WIDTH - 200.0f; // Adjust the X position to fit your window
-    float y = this->WINDOW_HEIGHT - 50.0f; // Adjust the Y position to fit your window
-    float scale = 1.0f;
-    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f); // White color
+    // Activate the text shader
+    this->shaders[SHADER_TEXT_PROGRAM]->use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(this->textRenderer->getVAO()); // Ensure VAO is bound for rendering text
 
-    // Render the text
-    this->textRenderer->RenderText(*this->shaders[GUI_SHADER], elapsedTimeStr, x, y, scale, color);
-    // go back to core shader
+    // Render the elapsed time text
+    this->textRenderer->RenderText(*this->shaders[SHADER_TEXT_PROGRAM], timeString, 25.0f, this->WINDOW_HEIGHT - 25.0f, 1.0f, glm::vec3(1.0, 1.0, 1.0));
 
+    glBindVertexArray(0); // Unbind the VAO
+}
+
+void Game::initText() {
+    // Create the Text object with the default constructor
+    Text* textRenderer = new Text("fonts/arial.ttf", 24);
+
+    // Set the projection matrix after creation
+    textRenderer->setProjectionMatrix(glm::ortho(0.0f, static_cast<float>(this->WINDOW_WIDTH), 0.0f, static_cast<float>(this->WINDOW_HEIGHT)));
+}
+
+void Game::initShaders() {
+    // Initialize all shaders here
+    this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR,
+        "vertex_core.glsl", "fragment_core.glsl"));
+    this->shaders.push_back(new Shader(this->GL_VERSION_MAJOR, this->GL_VERSION_MINOR,
+        "vertex_text.glsl", "fragment_text.glsl"));
+
+    // Set up the text shader
+    this->textShader = this->shaders[SHADER_TEXT_PROGRAM];
+}
+
+void Game::initUniforms() {
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ViewMatrix, "ViewMatrix");
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
+
+    // Initialize text shader's uniform for projection matrix
+    glm::mat4 textProjection = glm::ortho(0.0f, static_cast<float>(this->WINDOW_WIDTH),
+        0.0f, static_cast<float>(this->WINDOW_HEIGHT));
+    this->shaders[SHADER_TEXT_PROGRAM]->setMat4fv(textProjection, "projection");
+}
+
+void Game::updateUniforms() {
+    this->ViewMatrix = this->camera.getViewMatrix();
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ViewMatrix, "ViewMatrix");
+    this->shaders[SHADER_CORE_PROGRAM]->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
+}
+
+// Static
+void Game::framebuffer_resize_callback(GLFWwindow* window, int fbW, int fbH) {
+    glViewport(0, 0, fbW, fbH);
 }
